@@ -13,23 +13,23 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
+      - name: Install davfs
+        run: sudo apt-get -y install davfs2
+      - name: Mount storage
+        run: |
+            VAR_UID=$(id -u)
+            VAR_GID=$(id -g)
+            cat << EOF | sudo tee -a /etc/fstab
+            ${{ secrets.WEBDAV_ADDRESS }} /ifk davfs rw,uid=$(VAR_UID),gid=$(VAR_GID),file_mode=0660,dir_mode=0770 0 0
+            EOF
+            cat << EOF | sudo tee -a /etc/davfs2/secrets
+            ${{ secrets.WEBDAV_ADDRESS }} ${{ secrets.WEBDAV_USER }} ${{ secrets.WEBDAV_PASSWORD }}
+            EOF
+            mount -t davfs ${{ secrets.WEBDAV_ADDRESS }} /ifk
+            ls /ifk
       - name: Install tippecanoe
         run: |
             git clone https://github.com/mapbox/tippecanoe.git
             cd tippecanoe
             make -j
             sudo make install
-      - name: Install davfs
-        run: sudo apt-get -y install davfs2
-      - name: Mount storage
-        run: |
-            UID=$(id --user)
-            GID=$(id --group)
-            cat << EOF | sudo tee -a /etc/fstab
-            ${{ env.WEBDAV_ADDRESS }} /ifk davfs rw,uid=$(UID),gid=$(GID),file_mode=0660,dir_mode=0770 0 0
-            EOF
-            cat << EOF | sudo tee -a /etc/davfs2/secrets
-            ${{ env.WEBDAV_ADDRESS }} ${{ env.WEBDAV_USER }} ${{ env.WEBDAV_PASSWORD }}
-            EOF
-            mount -t davfs ${{ env.WEBDAV_ADDRESS }} /ifk
-            ls /ifk
