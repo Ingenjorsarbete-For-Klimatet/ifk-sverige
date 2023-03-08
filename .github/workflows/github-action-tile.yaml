@@ -24,7 +24,7 @@ jobs:
             ${{ secrets.WEBDAV_ADDRESS }} ${{ secrets.WEBDAV_USER }} ${{ secrets.WEBDAV_PASSWORD }}
             EOF
             mkdir $HOME/ifk
-            mount -t davfs ${{ secrets.WEBDAV_ADDRESS }} $HOME/ifk
+            sudo mount -t davfs ${{ secrets.WEBDAV_ADDRESS }} $HOME/ifk
             ls $HOME/ifk
       - name: Install tippecanoe
         run: |
