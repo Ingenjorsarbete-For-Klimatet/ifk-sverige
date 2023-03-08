@@ -21,11 +21,11 @@ jobs:
             sudo make install
       - name: Copy GeoJSON files
         run: |
-            sshpass -p ${{ secrets.PASSWORD }} rsync -r -e 'ssh -p${{ secrets.PORT }}' ${{ secrets.USER }}@${{ secrets.HOST }}/geojson $HOME/geojson
+            sshpass -p ${{ secrets.PASSWORD }} rsync -r -e 'ssh -p${{ secrets.PORT }}' ${{ secrets.USER }}@${{ secrets.HOST }}:/geojson $HOME/geojson
       - name: Create tiles
         run: |
             cd $HOME
             tippecanoe -z10 -pC -ab -f -e sweden_map_tiles -J $GITHUB_WORKSPACE/src/geometry/maptile_feature_filter.json geojson/0_sverige.geojson geojson/1_vatten.geojson geojson/2_fjall.geojson geojson/3_glaciar.geojson geojson/4_oppen.geojson geojson/5_stad.geojson
       - name: Save Tiles
         run: |
-            sshpass -p ${{ secrets.PASSWORD }} rsync -r -e 'ssh -p${{ secrets.PORT }}' $HOME/sweden_map_tiles ${{ secrets.USER }}@${{ secrets.HOST }}/sweden_map_tiles
+            sshpass -p ${{ secrets.PASSWORD }} rsync -r -e 'ssh -p${{ secrets.PORT }}' $HOME/sweden_map_tiles ${{ secrets.USER }}@${{ secrets.HOST }}:/sweden_map_tiles
