@@ -1,5 +1,5 @@
 name: Tiles
-on: [push]
+on: workflow_dispatch
 jobs:
   tiles:
     runs-on: ubuntu-latest
@@ -13,18 +13,6 @@ jobs:
         uses: actions/setup-python@v2
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Install davfs
-        run: sudo apt-get -y install davfs2
-      - name: Mount storage
-        run: |
-            cat << EOF | sudo tee -a /etc/fstab
-            ${{ secrets.WEBDAV_ADDRESS }} $HOME/ifk davfs rw,uid=$(id -u),gid=$(id -g),file_mode=0660,dir_mode=0770 0 0
-            EOF
-            cat << EOF | sudo tee -a /etc/davfs2/secrets
-            ${{ secrets.WEBDAV_ADDRESS }} ${{ secrets.WEBDAV_USER }} ${{ secrets.WEBDAV_PASSWORD }}
-            EOF
-            mkdir $HOME/ifk
-            sudo mount -t davfs ${{ secrets.WEBDAV_ADDRESS }} $HOME/ifk
       - name: Install tippecanoe
         run: |
             git clone https://github.com/mapbox/tippecanoe.git
@@ -33,11 +21,11 @@ jobs:
             sudo make install
       - name: Copy GeoJSON files
         run: |
-            cp -r $HOME/ifk/geojson $HOME/geojson
+            sshpass -p ${{ secrets.PASSWORD }} scp -r ${{ secrets.USER }}@${{ secrets.HOST }}:${{ secrets.PORT }}/geojson $HOME/geojson
       - name: Create tiles
         run: |
             cd $HOME
             tippecanoe -z10 -pC -ab -f -e sweden_map_tiles -J $GITHUB_WORKSPACE/src/geometry/maptile_feature_filter.json geojson/0_sverige.geojson geojson/1_vatten.geojson geojson/2_fjall.geojson geojson/3_glaciar.geojson geojson/4_oppen.geojson geojson/5_stad.geojson
       - name: Save Tiles
         run: |
-            sudo cp -r $HOME/sweden_map_tiles $HOME/ifk
+            sshpass -p ${{ secrets.PASSWORD }} scp -r $HOME/sweden_map_tiles ${{ secrets.USER }}@${{ secrets.HOST }}:${{ secrets.PORT }}/sweden_map_tiles
