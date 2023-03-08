@@ -18,14 +18,14 @@ jobs:
       - name: Mount storage
         run: |
             cat << EOF | sudo tee -a /etc/fstab
-            ${{ secrets.WEBDAV_ADDRESS }} /ifk davfs rw,uid=$(id -u),gid=$(id -g),file_mode=0660,dir_mode=0770 0 0
+            ${{ secrets.WEBDAV_ADDRESS }} $(HOME)/ifk davfs rw,uid=$(id -u),gid=$(id -g),file_mode=0660,dir_mode=0770 0 0
             EOF
             cat << EOF | sudo tee -a /etc/davfs2/secrets
             ${{ secrets.WEBDAV_ADDRESS }} ${{ secrets.WEBDAV_USER }} ${{ secrets.WEBDAV_PASSWORD }}
             EOF
-            mkdir /ifk
-            mount -t davfs ${{ secrets.WEBDAV_ADDRESS }} /ifk
-            ls /ifk
+            mkdir $(HOME)/ifk
+            mount -t davfs ${{ secrets.WEBDAV_ADDRESS }} $(HOME)/ifk
+            ls $(HOME)/ifk
       - name: Install tippecanoe
         run: |
             git clone https://github.com/mapbox/tippecanoe.git
