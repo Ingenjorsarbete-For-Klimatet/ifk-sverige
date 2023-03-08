@@ -19,3 +19,14 @@ jobs:
             cd tippecanoe
             make -j
             sudo make install
+      - name: Install davfs
+        run: sudo apt-get install davfs2
+      - name: Mount storage
+        run: |
+            cat << EOF | sudo tee -a /etc/fstab
+            ${{ env.WEBDAV_ADDRESS }} /ifk davfs
+            EOF
+            cat << EOF | sudo tee -a /etc/davfs2/secrets
+            /ifk ${{ env.WEBDAV_USER }} ${{ env.WEBDAV_PASSWORD }}
+            EOF
+            sudo mount /ifk
