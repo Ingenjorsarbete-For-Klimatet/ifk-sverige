@@ -17,14 +17,8 @@ jobs:
         run: sudo apt-get -y install davfs2
       - name: Mount storage
         run: |
-            cat << EOF | sudo tee -a /etc/fstab
-            ${{ secrets.WEBDAV_ADDRESS }} $HOME/ifk davfs rw,uid=$(id -u),gid=$(id -g),file_mode=0660,dir_mode=0770 0 0
-            EOF
-            cat << EOF | sudo tee -a /etc/davfs2/secrets
-            ${{ secrets.WEBDAV_ADDRESS }} ${{ secrets.WEBDAV_USER }} ${{ secrets.WEBDAV_PASSWORD }}
-            EOF
             mkdir $HOME/ifk
-            sudo mount -t davfs ${{ secrets.WEBDAV_ADDRESS }} $HOME/ifk
+            mount.cifs -o user=${{ secrets.WEBDAV_USER }},pass=${{ secrets.WEBDAV_PASSWORD }} //${{ secrets.WEBDAV_ADDRESS }} $HOME/ifk
             ls $HOME/ifk
       - name: Install tippecanoe
         run: |
