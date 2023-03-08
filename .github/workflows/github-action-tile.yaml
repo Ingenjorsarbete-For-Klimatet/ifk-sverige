@@ -23,8 +23,10 @@ jobs:
         run: sudo apt-get -y install davfs2
       - name: Mount storage
         run: |
+            UID=$(id --user)
+            GID=$(id --group)
             cat << EOF | sudo tee -a /etc/fstab
-            ${{ env.WEBDAV_ADDRESS }} /ifk davfs
+            ${{ env.WEBDAV_ADDRESS }} /ifk davfs rw,uid=$(UID),gid=$(GID),file_mode=0660,dir_mode=0770 0 0
             EOF
             cat << EOF | sudo tee -a /etc/davfs2/secrets
             ${{ env.WEBDAV_ADDRESS }} ${{ env.WEBDAV_USER }} ${{ env.WEBDAV_PASSWORD }}
