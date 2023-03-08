@@ -40,4 +40,4 @@ jobs:
             tippecanoe -z10 -pC -ab -f -e sweden_map_tiles -J $GITHUB_WORKSPACE/src/geometry/maptile_feature_filter.json geojson/0_sverige.geojson geojson/1_vatten.geojson geojson/2_fjall.geojson geojson/3_glaciar.geojson geojson/4_oppen.geojson geojson/5_stad.geojson
       - name: Save Tiles
         run: |
-            cp -r $HOME/sweden_map_tiles $HOME/ifk
+            sudo cp -r $HOME/sweden_map_tiles $HOME/ifk
