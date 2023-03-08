@@ -1,5 +1,5 @@
 name: Tiles
-on: workflow_dispatch
+on: push
 jobs:
   tiles:
     runs-on: ubuntu-latest
