@@ -30,3 +30,4 @@ jobs:
             /ifk ${{ env.WEBDAV_USER }} ${{ env.WEBDAV_PASSWORD }}
             EOF
             sudo mount /ifk
+            ls /ifk
