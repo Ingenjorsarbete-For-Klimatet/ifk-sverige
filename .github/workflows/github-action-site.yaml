@@ -29,8 +29,7 @@ jobs:
         uses: actions/configure-pages@v3
       - name: Copy map tiles
         run: |
-          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:sweden_map_tiles/ ${{ github.workspace }}/src/map/dist
-          ls ${{ github.workspace }}/src/map/dist
+          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:sweden_map_tiles/ ${{ github.workspace }}/src/map/dist/sweden_map_tiles
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
