@@ -27,13 +27,13 @@ jobs:
         run: npm run build
       - name: Setup Pages
         uses: actions/configure-pages@v3
-      - name: Copy GeoJSON files
+      - name: Copy map tiles
         run: |
-          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:sweden_map_tiles/ $HOME/sweden_map_tiles/src/map/dist
+          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:sweden_map_tiles/ $GITHUB_WORKSPACE/src/map/dist
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v1
         with:
-          path: "$HOME/sweden_map_tiles/src/map/dist"
+          path: "$GITHUB_WORKSPACE/src/map/dist"
 
   deploy-site:
     environment:
