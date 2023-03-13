@@ -44,7 +44,7 @@ const devicePixelRatio =
   (typeof window !== "undefined" && window.devicePixelRatio) || 1;
 
 const tileLayer = new MVTLayer({
-  data: `/ifk-sweden-map/sweden_map_tiles/{z}/{x}/{y}.pbf`,
+  data: `/sverige/sweden_map_tiles/{z}/{x}/{y}.pbf`,
 
   //maxRequests: 20,
 

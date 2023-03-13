@@ -6,7 +6,7 @@
   "scripts": {
     "start": "vite src/map/ --open",
     "start-local": "vite src/map/",
-    "build": "vite build src/map/ --base=/ifk-sweden-map/"
+    "build": "vite build src/map/ --base=/sverige/"
   },
   "dependencies": {
     "deck.gl": "^8.8.0",
