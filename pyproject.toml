@@ -3,9 +3,9 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "ifk-python-template"
+name = "ifk-sweden-map"
 version = "0.1.0"
-description = "IFK python template."
+description = "IFK Sweden map."
 license = { text = "MIT" }
 readme = "README.md"
 authors = [
@@ -29,10 +29,10 @@ doc = [
     "mkdocstrings[python] ~= 0.19",
 ]
 dev = [
-    "ifk-python-template[lint]",
-    "ifk-python-template[type]",
-    "ifk-python-template[test]",
-    "ifk-python-template[doc]",
+    "ifk-sweden-map[lint]",
+    "ifk-sweden-map[type]",
+    "ifk-sweden-map[test]",
+    "ifk-sweden-map[doc]",
     "black ~= 22.8",
     "pre-commit ~= 2.20",
 ]
