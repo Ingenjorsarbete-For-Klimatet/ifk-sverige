@@ -98,17 +98,36 @@ class Ground(Geometry):
         """
         super().__init__(file_path)
 
-    def get_ground(
-        self, save_path: str, ground: dict = config.ground_1m
-    ) -> gpd.GeoDataFrame:
-        """Get Sweden's ground.
+        self.data["area_m2"] = self.data.area
+        self.data["length_m"] = self.data.length
+
+    def _get_ground_items(self, ground: dict = config.ground_1m) -> gpd.GeoDataFrame:
+        """Get ground items.
 
         Args:
-            path: path of dir to save
             ground: dict of items to search for
 
         Returns:
-            geopandas GeoDataFrame of Sweden's ground border
+            ground item
+            file_name of ground item
+        """
+        for object_name, file_name in ground.items():
+            if object_name in config.exclude_ground:
+                continue
+
+            piece = self.data[self.data["objekttyp"] == object_name]
+            yield piece, file_name
+
+    def get_ground(
+        self, ground: dict = config.ground_1m
+    ) -> dict[str, gpd.GeoDataFrame]:
+        """Get Sweden's ground.
+
+        Args:
+            ground: dict of items to search for
+
+        Returns:
+            map of ground pieces including Sweden
 
         Raises:
             KeyError
@@ -117,21 +136,25 @@ class Ground(Geometry):
         if any([k not in ground_items for k, _ in ground.items()]):
             raise KeyError("Can't find all items in ground dict.")
 
-        for object_name, file_name in ground.items():
-            if object_name in config.exclude_ground:
-                continue
+        data = {}
+        for piece, file_name in self._get_ground_items(ground):
+            data[file_name] = piece
 
-            piece = self.data[self.data["objekttyp"] == object_name]
-            piece["area_m2"] = piece.area
-            piece["length_m"] = piece.length
+        sweden_data = self.data.drop(
+            self.data.loc[self.data["objekttyp"].isin(config.exclude_ground)].index
+        )
+        data[config.ground_sweden] = gpd.GeoDataFrame(
+            {"geometry": sweden_data.geometry.unary_union.geoms}
+        )
+        return data
+
+    def save_ground(self, save_path: str, ground: dict = config.ground_1m):
+        """Save Sweden's ground.
+
+        Args:
+            path: path of dir to save
+            ground: dict of items to search for
+        """
+        for file_name, piece in self.get_ground(ground).items():
             piece = piece.to_crs(config.epsg_4326)
             piece.to_file(path.join(save_path, file_name), driver="GeoJSON")
-
-        self.data.drop(
-            self.data.loc[self.data["objekttyp"].isin(config.exclude_ground)].index,
-            inplace=True,
-        )
-        sweden = gpd.GeoDataFrame({"geometry": self.data.geometry.unary_union.geoms})
-        sweden.to_file(path.join(save_path, config.ground_sweden), driver="GeoJSON")
-
-        return sweden
