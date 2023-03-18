@@ -88,7 +88,7 @@ class Border(Geometry):
 
 
 class Ground(Geometry):
-    """Ground class"""
+    """Ground class."""
 
     def __init__(self, file_path: str):
         """Initialise Ground object.
