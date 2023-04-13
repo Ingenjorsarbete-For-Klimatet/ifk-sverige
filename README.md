@@ -1,4 +1,4 @@
-<h1 align="center">ifk-python-template</h1>
+<h1 align="center">sverige</h1>
 
 <p align="center">
     <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-build.yaml">
@@ -41,14 +41,4 @@
 
 ## Description
 
-IFK python template for future python projects.
-
-## Configuration
-
-When you start a new project, apart from the obvious changes,
-there are some details to consider.
-
-- Build workflow, follow the guide in [dynamic badges](https://github.com/Schneegans/dynamic-badges-action).
-- To build docs, change `branch` in `github/workflows/github-action-docs.yaml`
-from `["SET_TO_MAIN"]` to `["main"]`. You also need to activate Pages under repo
-Settings/Pages.
+Interactive map of Sweden with several data overlays.
