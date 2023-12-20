@@ -87,13 +87,13 @@ const INITIAL_VIEW_STATE = {
 /* global window */
 //  const devicePixelRatio = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
 
-function getTooltip({ tile }: any) {
-  if (tile) {
-    const { x, y, z } = tile.index;
-    return `tile: x: ${x}, y: ${y}, z: ${z}`;
-  }
-  return null;
-}
+// function getTooltip({ tile }: any) {
+//   if (tile) {
+//     const { x, y, z } = tile.index;
+//     return `tile: x: ${x}, y: ${y}, z: ${z}`;
+//   }
+//   return null;
+// }
 
 // function onStateChange({viewState}: any) {
 //     viewState.longitude = Math.min(LONGITUDE_RANGE[1], Math.max(LONGITUDE_RANGE[0], viewState.longitude));
@@ -108,7 +108,7 @@ function getTooltip({ tile }: any) {
 export default function App() {
   const GroundLayer = new PMTLayer({
     id: "ground-layer",
-    data: "http://localhost:5173/sweden_ground.pmtiles",
+    data: "sweden_ground.pmtiles",
     pickable: true,
     // @ts-ignore
     getFillColor: (f: any) => COLOR[f.properties.objekttyp],
@@ -119,7 +119,7 @@ export default function App() {
 
   const BuildingLayer = new PMTLayer({
     id: "building-layer",
-    data: "http://localhost:5173/sweden_building.pmtiles",
+    data: "sweden_building.pmtiles",
     //getFillColor: function(f) {
     //  COLOR[f.properties.objekttyp]
     //},
@@ -132,7 +132,7 @@ export default function App() {
 
   const RoadLayer = new PMTLayer({
     id: "road-layer",
-    data: "http://localhost:5173/sweden_road.pmtiles",
+    data: "sweden_road.pmtiles",
     // @ts-ignore
     getLineColor: (f: any) => COLOR[f.properties.objekttyp],
     stroked: true,
@@ -141,7 +141,7 @@ export default function App() {
 
   // const TextLayer = new PMTLayer({
   //     id: "text-layer",
-  //     data: "http://localhost:5173/sweden_text.pmtiles",
+  //     data: "sweden_text.pmtiles",
   //     getFillColor: [0,0,0],
   //     getLineColor: [0,0,0],
   //     stroked: true,
@@ -154,7 +154,7 @@ export default function App() {
       views={new MapView({ repeat: false })}
       initialViewState={INITIAL_VIEW_STATE}
       controller={true}
-      getTooltip={getTooltip}
+      //getTooltip={getTooltip}
       //onViewStateChange={onStateChange}
     ></DeckGL>
   );
