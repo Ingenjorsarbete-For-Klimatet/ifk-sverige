@@ -1,4 +1,4 @@
 import { renderToDOM } from "./App.tsx";
-import "./index.css";
+import "./App.css";
 
 renderToDOM(document.getElementById("root"));
