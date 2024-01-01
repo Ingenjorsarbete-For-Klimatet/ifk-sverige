@@ -1,5 +1,8 @@
 FROM python:3.9-slim
 
+RUN apt-get install -y software-properties-common && \\
+    apt-get update
+
 RUN add-apt-repository ppa:ubuntugis/ppa && \
     apt-get update && \
     apt-get update && \
