@@ -1,6 +1,9 @@
 """Trie data structure."""
 
+from collections import namedtuple
 from typing import Optional
+
+Text = namedtuple("Text", "text index")
 
 
 class TrieNode:
@@ -72,7 +75,7 @@ class TrieQuery:
         assembled_word = input_text + node.character
 
         if node.is_word:
-            all_words.append((assembled_word, node.db_index))
+            all_words.append(Text(assembled_word, node.db_index))
 
         for child in node.children.values():
             self.dfs(all_words, child, assembled_word)
