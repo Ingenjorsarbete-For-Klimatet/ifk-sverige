@@ -3,9 +3,9 @@ FROM python:3.9.18-slim-bookworm
 RUN apt update && \
     apt upgrade && \
     apt install -y software-properties-common && \
-    apt update
-
-RUN add-apt-repository ppa:ubuntugis/ppa && \
+    apt update && \
+    apt install -y python3-launchpadlib && \
+    add-apt-repository ppa:ubuntugis/ppa && \
     apt update && \
     apt update && \
     apt install -y gdal-bin && \
