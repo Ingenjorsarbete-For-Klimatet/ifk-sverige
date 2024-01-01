@@ -35,7 +35,7 @@ jobs:
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
           context: "{{defaultContext}}:./"
-          file: "{{defaultContext}}:src/text_search_server/Dockerfile"
+          file: "{context}:src/text_search_server/Dockerfile"
           platforms: linux/amd64,linux/arm64
           push: false
           tags: ${{ steps.meta.outputs.tags }}
