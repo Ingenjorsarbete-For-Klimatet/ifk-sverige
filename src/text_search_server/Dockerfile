@@ -1,10 +1,15 @@
-FROM python:3.9.18-bookworm
+FROM python:3.9.18-slim-bookworm
+
+RUN apt update && \
+    apt upgrade && \
+    apt install -y software-properties-common && \
+    apt update
 
 RUN add-apt-repository ppa:ubuntugis/ppa && \
-    apt-get update && \
-    apt-get update && \
-    apt-get install -y gdal-bin && \
-    apt-get install -y libgdal-dev
+    apt update && \
+    apt update && \
+    apt install -y gdal-bin && \
+    apt install -y libgdal-dev
 
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
