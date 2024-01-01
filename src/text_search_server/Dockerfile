@@ -1,9 +1,10 @@
 FROM python:3.9-slim
 
-RUN add-apt-repository ppa:ubuntugis/ppa && sudo apt-get update && \
+RUN add-apt-repository ppa:ubuntugis/ppa && \
     apt-get update && \
-    apt-get install gdal-bin && \
-    apt-get install libgdal-dev
+    apt-get update && \
+    apt-get install -y gdal-bin && \
+    apt-get install -y libgdal-dev
 
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
