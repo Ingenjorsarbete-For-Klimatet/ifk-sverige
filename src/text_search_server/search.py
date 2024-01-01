@@ -2,7 +2,7 @@
 
 from fastapi import FastAPI
 from text_search_server import trie
-import GeoPandas as gpd
+import geopandas as gpd
 
 text = gpd.read_file("/mnt/data/text_sverige.gpkg")
 text = [
