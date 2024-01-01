@@ -21,7 +21,7 @@ COPY pyproject.toml pyproject.toml
 COPY src/text_search_server src/text_search_server
 RUN pip install .
 
-RUN cd app/src/text_search_server
-WORKDIR app/src/text_search_server
+RUN cd /app/src/text_search_server
+WORKDIR /app/src/text_search_server
 
 CMD [ "uvicorn", "search:app --reload" ]
