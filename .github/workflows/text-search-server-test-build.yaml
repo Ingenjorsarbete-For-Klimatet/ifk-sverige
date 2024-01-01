@@ -34,8 +34,8 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@f2a1d5e99d037542a71f64918e516c093c6f3fc4
         with:
-          context: "{{defaultContext}}:./"
-          dockerfile: "{{defaultContext}}:src/text-search-server/Dockerfile"
+          context: "{{defaultContext}}:src/text-search-server/Dockerfile"
+          file: "{{defaultContext}}:src/text-search-server/Dockerfile"
           platforms: linux/amd64,linux/arm64
           push: false
           tags: ${{ steps.meta.outputs.tags }}
