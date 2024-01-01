@@ -17,7 +17,15 @@ app = FastAPI()
 
 
 @app.get("/search/{input_text}")
-def read_item(input_text: str):
+def search(input_text: str) -> dict:
+    """Search database based on search string.
+
+    Args:
+        input_text: input search string
+
+    Returns:
+        top 50 found results for query
+    """
     tquery = trie.TrieQuery(tdb.root)
     all_words = tquery.search(input_text)
     return {"input_text": input_text, "top_50_matches": all_words[:50]}
