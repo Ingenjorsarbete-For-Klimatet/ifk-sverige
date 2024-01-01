@@ -1,7 +1,4 @@
-FROM python:3.9.18-slim-bookworm
-
-RUN apt-get install -y software-properties-common && \
-    apt-get update
+FROM python:3.9.18-bookworm
 
 RUN add-apt-repository ppa:ubuntugis/ppa && \
     apt-get update && \
