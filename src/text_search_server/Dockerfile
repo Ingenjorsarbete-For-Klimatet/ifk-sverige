@@ -9,7 +9,8 @@ RUN apt update && \
     apt update && \
     apt update && \
     apt install -y gdal-bin && \
-    apt install -y libgdal-dev
+    apt install -y libgdal-dev && \
+    apt install -y g++
 
 ENV CPLUS_INCLUDE_PATH=/usr/include/gdal
 ENV C_INCLUDE_PATH=/usr/include/gdal
