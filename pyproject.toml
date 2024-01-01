@@ -12,7 +12,7 @@ authors = [
     { name = "Mladen Gibanica", email = "11275336+mgcth@users.noreply.github.com" },
 ]
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["fastapi ~= 0.108", "uvicorn[standard]"]
 
 [project.optional-dependencies]
 lint = [
@@ -35,6 +35,7 @@ dev = [
     "ifk-sweden-map[doc]",
     "black ~= 22.8",
     "pre-commit ~= 2.20",
+    "ipykernel"
 ]
 
 [tool.setuptools.packages.find]
