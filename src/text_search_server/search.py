@@ -3,7 +3,7 @@
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from text_search_server import trie
-import geopandas as gpd
+import geopandas as gpd  # type: ignore
 
 DATABASE = {}
 FILE = "/mnt/data/text_sverige.gpkg"

@@ -42,5 +42,5 @@ dev = [
 where = ["src"]
 exclude = ["material"]
 
-[[tool.mypy.overrides]]
+[tool.mypy]
 ignore_missing_imports = true
