@@ -1,4 +1,4 @@
-name: text search server test build
+name: Text search server test build
 
 on:
   pull_request:

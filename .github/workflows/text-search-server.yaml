@@ -1,4 +1,4 @@
-name: text search server image
+name: Text search server image
 
 on:
   release:
