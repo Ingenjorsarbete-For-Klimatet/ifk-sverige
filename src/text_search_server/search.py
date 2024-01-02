@@ -5,6 +5,11 @@ from text_search_server import trie
 import geopandas as gpd
 
 text_pd = gpd.read_file("/mnt/data/text_sverige.gpkg")
+text_pd = text_pd.to_crs("EPSG:4326")
+text_pd["geometry_xy"] = [
+    (x.coords.xy[0][0], x.coords.xy[1][0]) for x in text_pd.geometry
+]
+text_pd = text_pd.drop("geometry", axis=1)
 text = [
     (text, index)
     for text, index in zip(text_pd.textstrang.tolist(), text_pd.index.tolist())
@@ -29,5 +34,5 @@ def search(input_text: str) -> dict:
     """
     tquery = trie.TrieQuery(tdb.root)
     all_words = tquery.search(input_text)
-    top_50_matches = [text_pd.iloc[y] for x, y in all_words[:50]]
+    top_50_matches = [text_pd.iloc[y].to_dict() for x, y in all_words[:50]]
     return {"input_text": input_text, "top_50_matches": top_50_matches}
