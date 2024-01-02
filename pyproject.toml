@@ -41,3 +41,6 @@ dev = [
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["material"]
+
+[tool.mypy]
+ignore_missing_imports = true
