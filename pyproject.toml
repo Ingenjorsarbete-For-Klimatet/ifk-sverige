@@ -22,7 +22,7 @@ lint = [
     "flake8-black ~= 0.3",
 ]
 type = ["mypy ~= 1.7.1", "types-requests ~= 2.28", "pandas-stubs ~= 1.5"]
-test = ["pytest ~= 7.1", "coverage ~= 6.5", "pytest-cov ~= 4.0"]
+test = ["pytest ~= 7.1", "coverage ~= 6.5", "pytest-cov ~= 4.0", "httpx"]
 doc = [
     "mkdocs ~= 1.4",
     "mkdocs-material ~= 8.5",
