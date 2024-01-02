@@ -1,20 +1,20 @@
 <h1 align="center">ifk-sverige</h1>
 
 <p align="center">
-    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-build.yaml">
-        <img src="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-build.yaml/badge.svg?branch=main" alt="build" style="max-width: 100%;">
+    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-build.yaml">
+        <img src="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-build.yaml/badge.svg?branch=main" alt="build" style="max-width: 100%;">
     </a>
-    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-build.yaml">
-        <img src="https://img.shields.io/endpoint?logo=github&labelColor=%23333a41&logoColor=%23959da5&url=https://gist.githubusercontent.com/mgcth/955d89d05ed9ca61fb3774bc68bbae33/raw/ifk-python-template-coverage-badge.json" alt="coverage" style="max-width: 100%;">
+    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-build.yaml">
+        <img src="https://img.shields.io/endpoint?logo=github&labelColor=%23333a41&logoColor=%23959da5&url=https://gist.githubusercontent.com/mgcth/0c2ffec41439b2380c35c98bc018104a/raw/ifk-sverige-coverage-badge.json" alt="coverage" style="max-width: 100%;">
     </a>
-    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-docs.yaml">
-        <img src="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-docs.yaml/badge.svg?branch=main" alt="docs" style="max-width: 100%;">
+    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-docs.yaml">
+        <img src="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-docs.yaml/badge.svg?branch=main" alt="docs" style="max-width: 100%;">
     </a>
-    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-lint.yaml">
-        <img src="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-lint.yaml/badge.svg?branch=main" alt="lint" style="max-width: 100%;">
+    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-lint.yaml">
+        <img src="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-lint.yaml/badge.svg?branch=main" alt="lint" style="max-width: 100%;">
     </a>
-    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-type.yaml">
-        <img src="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-python-template/actions/workflows/github-action-type.yaml/badge.svg?branch=main" alt="type" style="max-width: 100%;">
+    <a href="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-type.yaml">
+        <img src="https://github.com/Ingenjorsarbete-For-Klimatet/ifk-sverige/actions/workflows/github-action-type.yaml/badge.svg?branch=main" alt="type" style="max-width: 100%;">
     </a>
 </p>
 
