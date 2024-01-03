@@ -4,9 +4,13 @@ from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from text_search_server import trie
 import geopandas as gpd  # type: ignore
+from fastapi.middleware.cors import CORSMiddleware
 
 DATABASE = {}
 FILE = "/mnt/data/text_sverige.gpkg"
+ORIGINS = [
+    "http://localhost:5173"
+]
 
 
 def initialise_data(file: str) -> tuple[gpd.GeoDataFrame, trie.TrieDB]:
@@ -47,6 +51,14 @@ async def lifespan(app: FastAPI):
 
 
 app = FastAPI(lifespan=lifespan)
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ORIGINS,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 
 @app.get("/search/{input_text}")
