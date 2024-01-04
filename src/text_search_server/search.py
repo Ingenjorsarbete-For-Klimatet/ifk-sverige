@@ -8,9 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 DATABASE = {}
 FILE = "/mnt/data/text_sverige.gpkg"
-ORIGINS = [
-    "http://localhost:5173"
-]
+ORIGINS = ["http://localhost:5173"]
 
 
 def initialise_data(file: str) -> tuple[gpd.GeoDataFrame, trie.TrieDB]:
