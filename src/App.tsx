@@ -1,7 +1,11 @@
 import { createRoot } from "react-dom/client";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
+import { GeoJsonLayer } from "@deck.gl/layers/typed";
 import DeckGL from "@deck.gl/react/typed";
+import { FlyToInterpolator } from "@deck.gl/core/typed";
 import { MapView } from "@deck.gl/core/typed";
+import { useMenuStore, useSearchStore, buildLayerStore } from "./Menu.tsx";
+import { useState, useCallback } from "react";
 
 const STROKED: { [index: string]: any } = {
   Sverige: 1,
@@ -71,29 +75,19 @@ const COLOR: { [index: string]: any } = {
   "Småväg enkel standard": [255, 255, 255, 150],
 };
 
-const INITIAL_VIEW_STATE = {
-  latitude: 62.5,
-  longitude: 16,
-  zoom: 4,
-  minZoom: 4,
-  maxZoom: 14,
-  maxPitch: 0,
-  bearing: 0,
-};
-
 // const LONGITUDE_RANGE = [10, 20];
 // const LATITUDE_RANGE = [61, 64];
 
 /* global window */
 //  const devicePixelRatio = (typeof window !== 'undefined' && window.devicePixelRatio) || 1;
 
-// function getTooltip({ tile }: any) {
-//   if (tile) {
-//     const { x, y, z } = tile.index;
-//     return `tile: x: ${x}, y: ${y}, z: ${z}`;
-//   }
-//   return null;
-// }
+function getTooltip({ tile }: any) {
+  if (tile) {
+    const { x, y, z } = tile.index;
+    return `tile: x: ${x}, y: ${y}, z: ${z}`;
+  }
+  return null;
+}
 
 // function onStateChange({viewState}: any) {
 //     viewState.longitude = Math.min(LONGITUDE_RANGE[1], Math.max(LONGITUDE_RANGE[0], viewState.longitude));
@@ -105,61 +99,200 @@ const INITIAL_VIEW_STATE = {
 //   console.log(viewState.zoom)
 // }
 
-export default function App() {
-  const GroundLayer = new PMTLayer({
-    id: "ground-layer",
-    data: "sweden_ground.pmtiles",
-    pickable: true,
-    // @ts-ignore
-    getFillColor: (f: any) => COLOR[f.properties.objekttyp],
-    stroked: true,
-    lineWidthMinPixels: (f: any) => STROKED[f.properties.objekttyp],
-    getLineColor: [0, 0, 0, 20],
+const INITIAL_VIEW_STATE = {
+  latitude: 62.5,
+  longitude: 16,
+  zoom: 4,
+  minZoom: 4,
+  maxZoom: 14,
+  maxPitch: 0,
+  bearing: 0,
+};
+
+const allLayers = buildLayerStore(true);
+
+export function App() {
+  const searchView = useSearchStore((state: any) => {
+    if (state.searchView.zoom) {
+      return state.searchView;
+    } else {
+      return INITIAL_VIEW_STATE;
+    }
   });
 
-  const BuildingLayer = new PMTLayer({
-    id: "building-layer",
-    data: "sweden_building.pmtiles",
-    //getFillColor: function(f) {
-    //  COLOR[f.properties.objekttyp]
-    //},
-    // @ts-ignore
-    getFillColor: (f: any) => COLOR[f.properties.objekttyp],
-    stroked: false,
-    lineWidthMinPixels: 1,
-    getLineColor: [0, 0, 0, 20],
+  const layers = useMenuStore((state: any) => {
+    const ground = Object.entries(state.layer["ground"])
+      .filter(([_, value]) => value == true)
+      .map(([key, _]) => key);
+    const road = Object.entries(state.layer["road"])
+      .filter(([_, value]) => value == true)
+      .map(([key, _]) => key);
+    const construction = Object.entries(state.layer["construction"])
+      .filter(([_, value]) => value == true)
+      .map(([key, _]) => key);
+
+    let layers = [];
+
+    layers.push(
+      new PMTLayer({
+        id: "ground-layer",
+        data: "sweden_ground.pmtiles",
+        pickable: true,
+        // @ts-ignore
+        getFillColor: (f: any) => COLOR[f.properties.objekttyp],
+        stroked: true,
+        lineWidthMinPixels: (f: any) => STROKED[f.properties.objekttyp],
+        getLineColor: [0, 0, 0, 20],
+        loadOptions: {
+          mvt: {
+            layers: ground,
+          },
+        },
+      }),
+    );
+
+    layers.push(
+      new PMTLayer({
+        id: "road-layer",
+        data: "sweden_road.pmtiles",
+        // @ts-ignore
+        getLineColor: (f: any) => COLOR[f.properties.objekttyp],
+        stroked: true,
+        lineWidthMinPixels: 2,
+        loadOptions: {
+          mvt: {
+            layers: road,
+          },
+        },
+      }),
+    );
+
+    layers.push(
+      new PMTLayer({
+        id: "building-layer",
+        data: "sweden_building.pmtiles",
+        // @ts-ignore
+        getFillColor: [(f: any) => COLOR[f.properties.objekttyp]],
+        stroked: false,
+        lineWidthMinPixels: 1,
+        getLineColor: [0, 0, 0, 20],
+        loadOptions: {
+          mvt: {
+            layers: ["100_bygg"],
+          },
+        },
+      }),
+    );
+
+    // layers.push(new PMTLayer({
+    //   id: "text-layer",
+    //   data: "sweden_text.pmtiles",
+    //   // @ts-ignore
+    //   pointType: "text",
+    //   // @ts-ignore
+    //   getText: (f) => f.properties.textstrang,
+    //   getTextSize: 10,
+    //   characterSet: ["\u00E5", "\u00E4", "\u00F6"],
+    //   //textOutlineColor: [0, 0, 0, 255],
+    //   //textOutlineWidth: 2,
+    //   getTextColor: [0, 0, 0],
+    // }))
+
+    return layers;
   });
 
-  const RoadLayer = new PMTLayer({
-    id: "road-layer",
-    data: "sweden_road.pmtiles",
-    // @ts-ignore
-    getLineColor: (f: any) => COLOR[f.properties.objekttyp],
-    stroked: true,
-    lineWidthMinPixels: 2,
-  });
+  // const layers = Object.entries(useMenuStore((state: any) => state.layer))
+  //   .filter(([_, value]) => value == true)
+  //   .map(([key, _]) => key)
+
+  // console.log(layers)
+
+  // const GroundLayer = new PMTLayer({
+  //   id: "ground-layer",
+  //   data: "sweden_ground.pmtiles",
+  //   pickable: true,
+  //   // @ts-ignore
+  //   getFillColor: (f: any) => COLOR[f.properties.objekttyp],
+  //   stroked: true,
+  //   lineWidthMinPixels: (f: any) => STROKED[f.properties.objekttyp],
+  //   getLineColor: [0, 0, 0, 20],
+  //   // loadOptions: {
+  //   //   mvt: {
+  //   //     layers: layers
+  //   //   }
+  //   // },
+  //   // updateTriggers: {
+  //   //   loadOptions: { mvt: layers }
+  //   // }
+  // });
+
+  // // {const GroundLayer = new PMTLayer({
+  // //   id: "ground-layer",
+  // //   data: "sweden_ground.pmtiles",
+  // //   pickable: true,
+  // //   // @ts-ignore
+  // //   getFillColor: (f: any) => COLOR[f.properties.objekttyp],
+  // //   stroked: true,
+  // //   lineWidthMinPixels: (f: any) => STROKED[f.properties.objekttyp],
+  // //   getLineColor: [0, 0, 0, 20],
+  // //   loadOptions: {
+  // //     mvt: {
+  // //       layers: layers
+  // //     }
+  // //   },
+  // //   updateTriggers: {
+  // //     loadOptions: [mvt.layers]
+  // //   }
+  // // });}
+
+  // const BuildingLayer = new PMTLayer({
+  //   id: "building-layer",
+  //   data: "sweden_building.pmtiles",
+  //   //getFillColor: function(f) {
+  //   //  COLOR[f.properties.objekttyp]
+  //   //},
+  //   // @ts-ignore
+  //   getFillColor: (f: any) => COLOR[f.properties.objekttyp],
+  //   stroked: false,
+  //   lineWidthMinPixels: 1,
+  //   getLineColor: [0, 0, 0, 20],
+  // });
+
+  // const RoadLayer = new PMTLayer({
+  //   id: "road-layer",
+  //   data: "sweden_road.pmtiles",
+  //   // @ts-ignore
+  //   getLineColor: (f: any) => COLOR[f.properties.objekttyp],
+  //   stroked: true,
+  //   lineWidthMinPixels: 2,
+  // });
 
   // const TextLayer = new PMTLayer({
-  //     id: "text-layer",
-  //     data: "sweden_text.pmtiles",
-  //     getFillColor: [0,0,0],
-  //     getLineColor: [0,0,0],
-  //     stroked: true,
-  //     lineWidthMinPixels: 2,
-  // })
+  //   id: "text-layer",
+  //   data: "sweden_text.pmtiles",
+  //   // @ts-ignore
+  //   pointType: "text",
+  //   // @ts-ignore
+  //   getText: (f) => f.properties.textstrang,
+  //   getTextSize: 10,
+  //   characterSet: ["\u00E5", "\u00E4", "\u00F6"],
+  //   //textOutlineColor: [0, 0, 0, 255],
+  //   //textOutlineWidth: 2,
+  //   getTextColor: [0, 0, 0],
+  // });
 
   return (
     <DeckGL
-      layers={[GroundLayer, RoadLayer, BuildingLayer]}
+      layers={layers}
       views={new MapView({ repeat: false })}
-      initialViewState={INITIAL_VIEW_STATE}
+      initialViewState={searchView}
       controller={true}
-      //getTooltip={getTooltip}
-      //onViewStateChange={onStateChange}
+      getTooltip={getTooltip}
+      //onViewStateChange={goToSearchLocation}
     ></DeckGL>
   );
 }
 
-export function renderToDOM(container: any): any {
-  createRoot(container).render(<App />);
+export function renderToDOM(container: any, component: any): any {
+  createRoot(container).render(component);
 }
