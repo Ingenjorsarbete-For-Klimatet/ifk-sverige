@@ -17,6 +17,7 @@ class TrieNode:
         """
         self.character = character
         self.is_word = False
+        self.num_words = 0
         self.db_index: Optional[int] = None
         self.children: dict = {}
 
@@ -56,13 +57,15 @@ class TrieQuery:
     Query trie database, read only.
     """
 
-    def __init__(self, root):
+    def __init__(self, root: TrieNode, max_words: int = 50) -> None:
         """Initialise trie query.
 
         Args:
             root: root node to query from
+            max_words: max words to return from search
         """
         self.root = root
+        self.max_words = max_words
 
     def dfs(self, all_words: list, node: TrieNode, input_text: str) -> None:
         """Depth-first search of trie.
@@ -78,6 +81,9 @@ class TrieQuery:
             all_words.append(Text(assembled_word, node.db_index))
 
         for child in node.children.values():
+            if len(all_words) >= self.max_words:
+                return
+
             self.dfs(all_words, child, assembled_word)
 
     def search(self, input_text: str) -> list:
