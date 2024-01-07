@@ -187,3 +187,5 @@ dist-ssr
 
 # Custom
 *.pmtiles
+*.geojson
+*.gpkg
