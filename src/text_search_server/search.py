@@ -6,6 +6,7 @@ from text_search_server import trie
 import geopandas as gpd  # type: ignore
 from fastapi.middleware.cors import CORSMiddleware
 
+MAX_WORDS = 50
 DATABASE = {}
 FILE = "/mnt/data/text_sverige.gpkg"
 ORIGINS = ["http://localhost:5173"]
@@ -71,7 +72,7 @@ def search(input_text: str) -> dict:
     """
     text_pd = DATABASE["text_pd"]
     tdb = DATABASE["tdb"]
-    tquery = trie.TrieQuery(tdb.root)
+    tquery = trie.TrieQuery(tdb.root, MAX_WORDS)
     all_words = tquery.search(input_text)
-    top_50_matches = [text_pd.iloc[y].to_dict() for x, y in all_words[:50]]
-    return {"input_text": input_text, "top_50_matches": top_50_matches}
+    matches = [text_pd.iloc[y].to_dict() for x, y in all_words]
+    return {"input_text": input_text, "matches": matches}
