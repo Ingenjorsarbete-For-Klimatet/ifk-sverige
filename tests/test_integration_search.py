@@ -26,7 +26,7 @@ data.to_file("tests/fixtures/test_data.gpkg")
             200,
             {
                 "input_text": "G",
-                "top_50_matches": [
+                "matches": [
                     {"geometry_xy": [1.0, 2.0], "index": 1, "textstrang": "Gö"},
                     {"geometry_xy": [0.0, 0.0], "index": 0, "textstrang": "Göteborg"},
                 ],
@@ -37,12 +37,12 @@ data.to_file("tests/fixtures/test_data.gpkg")
             200,
             {
                 "input_text": "Luleå",
-                "top_50_matches": [
+                "matches": [
                     {"geometry_xy": [2.0, 2.0], "index": 2, "textstrang": "Luleå"}
                 ],
             },
         ),
-        ("None", 200, {"input_text": "None", "top_50_matches": []}),
+        ("None", 200, {"input_text": "None", "matches": []}),
         ("", 404, {"detail": "Not Found"}),
     ],
 )
