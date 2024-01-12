@@ -74,5 +74,5 @@ def search(input_text: str) -> dict:
     tdb = DATABASE["tdb"]
     tquery = trie.TrieQuery(tdb.root, MAX_WORDS)
     all_words = tquery.search(input_text)
-    matches = [text_pd.iloc[y].to_dict() for x, y in all_words]
+    matches = [text_pd.iloc[i].to_dict() for _, indices in all_words for i in indices]
     return {"input_text": input_text, "matches": matches}

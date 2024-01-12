@@ -9,9 +9,9 @@ from fastapi.testclient import TestClient
 
 data = gpd.GeoDataFrame(
     {
-        "geometry": [Point(0, 0), Point(1, 2), Point(2, 2)],
-        "textstrang": ["Göteborg", "Gö", "Luleå"],
-        "index": [0, 1, 2],
+        "geometry": [Point(0, 0), Point(1, 2), Point(2, 2), Point(3, 3)],
+        "textstrang": ["Göteborg", "Gö", "Luleå", "Gö"],
+        "index": [0, 1, 2, 3],
     }
 )
 data.set_crs("EPSG:3006")
@@ -28,6 +28,7 @@ data.to_file("tests/fixtures/test_data.gpkg")
                 "input_text": "G",
                 "matches": [
                     {"geometry_xy": [1.0, 2.0], "index": 1, "textstrang": "Gö"},
+                    {"geometry_xy": [3.0, 3.0], "index": 3, "textstrang": "Gö"},
                     {"geometry_xy": [0.0, 0.0], "index": 0, "textstrang": "Göteborg"},
                 ],
             },

@@ -1,7 +1,6 @@
 """Trie data structure."""
 
 from collections import namedtuple
-from typing import Optional
 
 Text = namedtuple("Text", "text index")
 
@@ -18,7 +17,7 @@ class TrieNode:
         self.character = character
         self.is_word = False
         self.num_words = 0
-        self.db_index: Optional[int] = None
+        self.db_index: list[int] = []
         self.children: dict = {}
 
 
@@ -48,7 +47,7 @@ class TrieDB:
             node = new_node
 
         node.is_word = True
-        node.db_index = index
+        node.db_index.append(index)
 
 
 class TrieQuery:
