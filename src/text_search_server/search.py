@@ -29,7 +29,7 @@ def initialise_data(file: str) -> tuple[gpd.GeoDataFrame, trie.TrieDB]:
     text_pd = text_pd.drop("geometry", axis=1)
 
     text = [
-        (text, index)
+        (text.lower(), index)
         for text, index in zip(text_pd.textstrang.tolist(), text_pd.index.tolist())
     ]
 
@@ -73,6 +73,6 @@ def search(input_text: str) -> dict:
     text_pd = DATABASE["text_pd"]
     tdb = DATABASE["tdb"]
     tquery = trie.TrieQuery(tdb.root, MAX_WORDS)
-    all_words = tquery.search(input_text)
+    all_words = tquery.search(input_text.lower())
     matches = [text_pd.iloc[i].to_dict() for _, indices in all_words for i in indices]
     return {"input_text": input_text, "matches": matches}
