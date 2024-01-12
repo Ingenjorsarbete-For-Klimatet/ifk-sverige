@@ -45,6 +45,18 @@ data.to_file("tests/fixtures/test_data.gpkg")
         ),
         ("None", 200, {"input_text": "None", "matches": []}),
         ("", 404, {"detail": "Not Found"}),
+        (
+            "g",
+            200,
+            {
+                "input_text": "g",
+                "matches": [
+                    {"geometry_xy": [1.0, 2.0], "index": 1, "textstrang": "Gö"},
+                    {"geometry_xy": [3.0, 3.0], "index": 3, "textstrang": "Gö"},
+                    {"geometry_xy": [0.0, 0.0], "index": 0, "textstrang": "Göteborg"},
+                ],
+            },
+        ),
     ],
 )
 @patch("text_search_server.search.FILE", "tests/fixtures/test_data.gpkg")
