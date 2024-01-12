@@ -128,7 +128,7 @@ async function loadOptions(inputValue: string) {
   )
     .then((res) => res.json())
     .catch((err) => console.log(err))
-    .then((res) => res["top_50_matches"]);
+    .then((res) => res["matches"]);
 }
 
 export function MainMenu() {
