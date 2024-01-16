@@ -4,6 +4,7 @@
 
 @layer base {
   :root {
+    --sea: 198 76.5 93.3;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -36,6 +37,7 @@
   }
 
   .dark {
+    --sea: 198 76.5 93.3;
     --background: 222.2 84% 4.9%;
     --foreground: 210 40% 98%;
 
@@ -77,5 +79,9 @@
 
   .space-between {
     justify-content: space-between;
+  }
+
+  body {
+    background-color: var(--sea);
   }
 }
