@@ -124,7 +124,7 @@ function LayerLabel({ type, value, label }: any): any {
 
 async function loadOptions(inputValue: string) {
   return fetch(
-    `https://dev.sverige.ingenjorsarbeteforklimatet.se/search/${inputValue}`,
+    `https://dev.sverige.ingenjorsarbeteforklimatet.se/search/${inputValue.toLowerCase()}`,
   )
     .then((res) => res.json())
     .catch((err) => console.log(err))
@@ -167,6 +167,7 @@ export function MainMenu() {
             defaultOptions={defaultSearchOptions}
             loadOptions={loadOptions}
             onChange={(e) => setSearchResult(e, setInitialViewState)}
+            hideSelectedOptions={true}
           />
         </NavigationMenuItem>
         <NavigationMenuItem>
