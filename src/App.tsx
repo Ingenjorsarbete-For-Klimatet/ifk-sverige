@@ -1,11 +1,8 @@
 import { createRoot } from "react-dom/client";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
-import { GeoJsonLayer } from "@deck.gl/layers/typed";
 import DeckGL from "@deck.gl/react/typed";
-import { FlyToInterpolator } from "@deck.gl/core/typed";
 import { MapView } from "@deck.gl/core/typed";
 import { useMenuStore, useSearchStore, buildLayerStore } from "./Menu.tsx";
-import { useState, useCallback } from "react";
 import { STROKED, COLOR } from "./config.tsx";
 
 function getTooltip({ tile }: any) {
@@ -25,8 +22,6 @@ const INITIAL_VIEW_STATE = {
   maxPitch: 0,
   bearing: 0,
 };
-
-const allLayers = buildLayerStore(true);
 
 export function App() {
   const searchView = useSearchStore((state: any) => {
