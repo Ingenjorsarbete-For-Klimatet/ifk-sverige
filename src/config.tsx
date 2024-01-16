@@ -1,4 +1,4 @@
-export const ground: { [index: string]: any } = {
+export const ground: { [index: string]: string } = {
   "Granskog/Mark": "00_sverige",
   "Anlagt vatten": "01_anlagt_vatten",
   Vattendragsyta: "02_vattendragsyta",
@@ -16,7 +16,7 @@ export const ground: { [index: string]: any } = {
   "Industri- och handelsbebyggelse": "15_industri_handel",
 };
 
-export const road: { [index: string]: any } = {
+export const road: { [index: string]: string } = {
   Motorväg: "01_motorvag",
   Motortrafikled: "02_motortrafikled",
   "Mötesfri väg": "03_motesfri_vag",
@@ -48,7 +48,7 @@ export const road: { [index: string]: any } = {
   Museijärnväg: "02_museijarnvag",
 };
 
-export const construction: { [index: string]: any } = {
+export const construction: { [index: string]: string } = {
   Bostad: "01_bostad",
   Industri: "02_industri",
   Samhällsfunktion: "03_samhallsfunktion",
@@ -56,4 +56,72 @@ export const construction: { [index: string]: any } = {
   Ekonomibyggnad: "05_ekonomibyggnad",
   Komplementbyggnad: "06_komplementbyggnad",
   "Övrig byggnad": "07_ovrig",
+};
+
+export const STROKED: { [index: string]: number } = {
+  Sverige: 1,
+
+  "Anlagt vatten": 1,
+  Vattendragsyta: 1,
+  Sjö: 1,
+
+  "Hög bebyggelse": 0,
+  "Låg bebyggelse": 0,
+  "Sluten bebyggelse": 0,
+  "Industri- och handelsbebyggelse": 0,
+
+  "Öppen mark": 0,
+  "Barr- och blandskog": 0,
+  Lövskog: 0,
+
+  Fruktodling: 0,
+  Åker: 0,
+
+  Fjällbjörkskog: 0,
+  Glaciär: 0,
+  Kalfjäll: 0,
+};
+
+export const COLOR: { [index: string]: Array<number> } = {
+  Sverige: [160, 210, 180],
+
+  "Anlagt vatten": [222, 244, 252],
+  Vattendragsyta: [222, 244, 252],
+  Sjö: [222, 244, 252],
+
+  "Hög bebyggelse": [210, 210, 210],
+  "Låg bebyggelse": [220, 220, 220],
+  "Sluten bebyggelse": [230, 230, 230],
+  "Industri- och handelsbebyggelse": [240, 240, 240],
+
+  "Öppen mark": [155, 118, 83, 50],
+  "Barr- och blandskog": [110, 177, 131],
+  Lövskog: [45, 90, 39, 50],
+
+  Fruktodling: [199, 55, 47, 50],
+  Åker: [245, 222, 179, 50],
+
+  Fjällbjörkskog: [99, 126, 29, 50],
+  Glaciär: [0, 134, 1450, 100],
+  Kalfjäll: [125, 200, 181, 100],
+
+  Bostad: [30, 30, 30, 200],
+  Ekonomibyggnad: [30, 30, 30, 200],
+  Industri: [30, 30, 30, 200],
+  Komplementbyggnad: [30, 30, 30, 200],
+  Samhällsfunktion: [30, 30, 30, 200],
+  Verksamhet: [30, 30, 30, 200],
+  "Övrig byggnad": [30, 30, 30, 200],
+
+  Motorväg: [255, 255, 255, 150],
+  Motortrafikled: [255, 255, 255, 150],
+  "Övergripande länk": [255, 255, 255, 150],
+  Landsväg: [255, 255, 255, 150],
+  "Landsväg liten": [255, 255, 255, 150],
+  Huvudgata: [255, 255, 255, 150],
+  "Lokalgata stor": [255, 255, 255, 150],
+  "Lokalgata liten": [255, 255, 255, 150],
+  "Mötesfri väg": [255, 255, 255, 150],
+  Småväg: [255, 255, 255, 150],
+  "Småväg enkel standard": [255, 255, 255, 150],
 };
