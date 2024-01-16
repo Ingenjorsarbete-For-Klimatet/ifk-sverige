@@ -67,7 +67,7 @@ export const useSearchStore = create((set) => ({
       maxZoom: 14,
       pitch: 0,
       bearing: 0,
-      transitionDuration: 2000,
+      transitionDuration: 3000,
       transitionInterpolator: new FlyToInterpolator(),
     };
     fun(view);
@@ -85,15 +85,31 @@ async function getDefaultSearchOptions(
   for (const option of defaultOptions) {
     const optionResult = await loadOptions(option);
     const filteredOption = optionResult.filter(
-      (item: any) => item.textstrang === option,
+      (item: any) =>
+        item.textstrang === option && item.textkategori == "Tätort",
     )[0];
     options.push({
       textstrang: filteredOption.textstrang,
+      textkategori: filteredOption.textstrang,
+      textstorleksklass: Number(filteredOption.textstorleksklass),
       geometry_xy: filteredOption.geometry_xy,
     });
   }
 
   return options;
+}
+
+async function loadOptions(inputValue: string) {
+  return fetch(
+    `https://dev.sverige.ingenjorsarbeteforklimatet.se/search/${inputValue.toLowerCase()}`,
+  )
+    .then((res) => res.json())
+    .catch((err) => console.log(err))
+    .then((res) =>
+      res["matches"].sort(function (first: any, second: any) {
+        return second.textstorleksklass - first.textstorleksklass;
+      }),
+    );
 }
 
 const defaultSearchOptions = await getDefaultSearchOptions(options);
@@ -120,15 +136,6 @@ function LayerLabel({ type, value, label }: any): any {
       />
     </div>
   );
-}
-
-async function loadOptions(inputValue: string) {
-  return fetch(
-    `https://dev.sverige.ingenjorsarbeteforklimatet.se/search/${inputValue.toLowerCase()}`,
-  )
-    .then((res) => res.json())
-    .catch((err) => console.log(err))
-    .then((res) => res["matches"]);
 }
 
 export function MainMenu() {
@@ -160,14 +167,13 @@ export function MainMenu() {
             isClearable={isClearable}
             isRtl={isRtl}
             isSearchable={isSearchable}
-            getOptionLabel={(e) => e.textstrang}
+            getOptionLabel={(e) => `${e.textstrang} ${e.textkategori}`}
             getOptionValue={(e) => e.geometry_xy}
             className="w-[200px] p-0"
             cacheOptions
             defaultOptions={defaultSearchOptions}
             loadOptions={loadOptions}
             onChange={(e) => setSearchResult(e, setInitialViewState)}
-            hideSelectedOptions={true}
           />
         </NavigationMenuItem>
         <NavigationMenuItem>
