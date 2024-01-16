@@ -90,7 +90,7 @@ async function getDefaultSearchOptions(
     )[0];
     options.push({
       textstrang: filteredOption.textstrang,
-      textkategori: filteredOption.textstrang,
+      textkategori: filteredOption.textkategori,
       textstorleksklass: Number(filteredOption.textstorleksklass),
       geometry_xy: filteredOption.geometry_xy,
     });
