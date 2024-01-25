@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 import DeckGL from "@deck.gl/react/typed";
 import { MapView } from "@deck.gl/core/typed";
-import { useMenuStore, useSearchStore, buildLayerStore } from "./Menu.tsx";
+import { useMenuStore, buildLayerStore } from "./Menu.tsx";
 import { STROKED, COLOR } from "./config.tsx";
 
 function getTooltip({ tile }: any) {
@@ -24,7 +24,7 @@ const INITIAL_VIEW_STATE = {
 };
 
 export function App() {
-  const searchView = useSearchStore((state: any) => {
+  const searchView = useMenuStore((state: any) => {
     if (state.searchView.zoom) {
       return state.searchView;
     } else {

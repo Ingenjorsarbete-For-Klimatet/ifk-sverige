@@ -46,6 +46,8 @@ export function buildLayerStore(checked: boolean) {
 
 export const useMenuStore = create((set) => ({
   layer: buildLayerStore(true),
+  searchResult: {},
+  searchView: {},
   toggleLayer: (type: string, selectedLayer: string, checked: boolean) =>
     set((state: any): any => ({
       layer: {
@@ -53,11 +55,6 @@ export const useMenuStore = create((set) => ({
         [type]: { ...state.layer[type], [selectedLayer]: checked },
       },
     })),
-}));
-
-export const useSearchStore = create((set) => ({
-  searchResult: {},
-  searchView: {},
   setSearchResult: (result: any, fun: any) => {
     const view = {
       latitude: result.geometry_xy[1],
@@ -144,8 +141,8 @@ export function MainMenu() {
   const [isDisabled, setIsDisabled] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isRtl, setIsRtl] = useState(false);
-  const searchResult = useSearchStore((state: any) => state.searchResult);
-  const setSearchResult = useSearchStore((state: any) => state.setSearchResult);
+  const searchResult = useMenuStore((state: any) => state.searchResult);
+  const setSearchResult = useMenuStore((state: any) => state.setSearchResult);
   const [initialViewState, setInitialViewState] = useState({
     latitude: 62.5,
     longitude: 16,
@@ -179,16 +176,15 @@ export function MainMenu() {
         <NavigationMenuItem>
           <Popover>
             <PopoverTrigger asChild>
-              <Button variant="outline">Lager</Button>
+              <Button variant="outline">Karta</Button>
             </PopoverTrigger>
             <PopoverContent className="w-[100%]">
               <Tabs defaultValue="mark" className="w-[300px]">
-                <TabsList className="grid w-full grid-cols-5">
+                <TabsList className="grid w-full grid-cols-4">
                   <TabsTrigger value="mark">Mark</TabsTrigger>
                   <TabsTrigger value="vag">Väg</TabsTrigger>
                   <TabsTrigger value="granser">Gränser</TabsTrigger>
-                  <TabsTrigger value="annat">Annat</TabsTrigger>
-                  <TabsTrigger value="data">Data</TabsTrigger>
+                  <TabsTrigger value="terrang">Terräng</TabsTrigger>
                 </TabsList>
                 <TabsContent value="mark">
                   <ScrollArea className="h-72">{groundList}</ScrollArea>
@@ -197,8 +193,28 @@ export function MainMenu() {
                   <ScrollArea className="h-72">{roadList}</ScrollArea>
                 </TabsContent>
                 <TabsContent value="granser"></TabsContent>
-                <TabsContent value="annat"></TabsContent>
-                <TabsContent value="data"></TabsContent>
+                <TabsContent value="terrang"></TabsContent>
+              </Tabs>
+            </PopoverContent>
+          </Popover>
+        </NavigationMenuItem>
+        <NavigationMenuItem>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="outline">Data</Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-[100%]">
+              <Tabs defaultValue="vader" className="w-[300px]">
+                <TabsList className="grid w-full grid-cols-2">
+                  <TabsTrigger value="vader">Väder</TabsTrigger>
+                  <TabsTrigger value="vatten">Vatten</TabsTrigger>
+                </TabsList>
+                <TabsContent value="vader">
+                  <ScrollArea className="h-72">{groundList}</ScrollArea>
+                </TabsContent>
+                <TabsContent value="vatten">
+                  <ScrollArea className="h-72">{roadList}</ScrollArea>
+                </TabsContent>
               </Tabs>
             </PopoverContent>
           </Popover>
