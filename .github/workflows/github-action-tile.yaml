@@ -1,0 +1,31 @@
+name: Tiles
+on:
+  push:
+    branches:
+      - main
+jobs:
+  tiles:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Install tippecanoe
+        run: |
+          git clone https://github.com/felt/tippecanoe.git
+          cd tippecanoe
+          make -j
+          sudo make install
+      - name: Copy GeoJSON files
+        run: |
+          mkdir $HOME/geojson
+          mkdir $HOME/sweden_map_tiles
+          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:sverige/geojson_50/ $HOME/geojson/
+      - name: Create tiles
+        run: |
+          . $GITHUB_WORKSPACE/src/tiles/ground.sh
+          . $GITHUB_WORKSPACE/src/tiles/communication.sh
+          . $GITHUB_WORKSPACE/src/tiles/construction.sh
+          . $GITHUB_WORKSPACE/src/tiles/text.sh
+      - name: Save Tiles
+        run: |
+          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" $HOME/sweden_map_tiles/ ${{ secrets.USER }}@${{ secrets.HOST }}:sverige/sweden_map_tiles/

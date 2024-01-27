@@ -3,16 +3,16 @@ requires = ["setuptools", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "sweden_map"
+name = "ifk-sweden-map"
 version = "0.1.0"
-description = "IFK python template."
+description = "IFK Sweden map."
 license = { text = "MIT" }
 readme = "README.md"
 authors = [
     { name = "Mladen Gibanica", email = "11275336+mgcth@users.noreply.github.com" },
 ]
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["fastapi ~= 0.108", "uvicorn[standard]", "geopandas ~= 0.14", "pyarrow ~= 14.0"]
 
 [project.optional-dependencies]
 lint = [
@@ -21,22 +21,26 @@ lint = [
     "flake8-docstrings ~= 1.6",
     "flake8-black ~= 0.3",
 ]
-type = ["mypy ~= 0.990", "types-requests ~= 2.28", "pandas-stubs ~= 1.5"]
-test = ["pytest ~= 7.1", "coverage ~= 6.5", "pytest-cov ~= 4.0"]
+type = ["mypy ~= 1.7.1", "types-requests ~= 2.28", "pandas-stubs ~= 1.5"]
+test = ["pytest ~= 7.1", "coverage ~= 6.5", "pytest-cov ~= 4.0", "httpx"]
 doc = [
     "mkdocs ~= 1.4",
     "mkdocs-material ~= 8.5",
     "mkdocstrings[python] ~= 0.19",
 ]
 dev = [
-    "sweden_map[lint]",
-    "sweden_map[type]",
-    "sweden_map[test]",
-    "sweden_map[doc]",
+    "ifk-sweden-map[lint]",
+    "ifk-sweden-map[type]",
+    "ifk-sweden-map[test]",
+    "ifk-sweden-map[doc]",
     "black ~= 22.8",
     "pre-commit ~= 2.20",
+    "ipykernel"
 ]
 
 [tool.setuptools.packages.find]
 where = ["src"]
 exclude = ["material"]
+
+[tool.mypy]
+ignore_missing_imports = true
