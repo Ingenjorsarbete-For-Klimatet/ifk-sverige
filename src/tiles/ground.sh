@@ -1,5 +1,5 @@
 tippecanoe -z14 -S10 -as -ad -an -g2 -aN -aS -aS -f -o sweden_map_tiles/sweden_ground.pmtiles \
- -J src/filter/filter_ground.json \
+ -J src/tiles/filters/filter_ground.json \
  geojson/ground/00_sverige.geojson geojson/ground/01_anlagt_vatten.geojson \
  geojson/ground/02_vattendragsyta.geojson geojson/ground/03_sjo.geojson \
  geojson/ground/04_glaciar.geojson geojson/ground/05_kalfjall.geojson \

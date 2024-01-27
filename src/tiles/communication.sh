@@ -1,5 +1,5 @@
 tippecanoe -z14 -as -f -o sweden_map_tiles/sweden_communication.pmtiles \
- -J src/filter/filter_communication.json \
+ -J src/tiles/filters/filter_communication.json \
  geojson/communication/01_motorvag.geojson geojson/communication/02_motortrafikled.geojson \
  geojson/communication/03_motesfri_vag.geojson geojson/communication/04_landsvag.geojson \
  geojson/communication/05_landsvag_liten.geojson geojson/communication/06_smavag.geojson \

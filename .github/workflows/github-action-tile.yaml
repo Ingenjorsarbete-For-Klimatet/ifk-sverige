@@ -14,15 +14,15 @@ jobs:
           sudo make install
       - name: Copy GeoJSON files
         run: |
-          mkdir $HOME/geojson/
-          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:sverige/geojson_50/ $HOME/geojson/
+          mkdir $HOME/geojson
+          mkdir $HOME/geojson/construction
+          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:sverige/geojson_50/construction/ $HOME/geojson/construction/
       - name: Create tiles
         run: |
-          cd $HOME
-          . $GITHUB_WORKSPACE/src/tiles/ground.sh
+          echo $GITHUB_WORKSPACE
+          echo $HOME
+          mkdir $HOME/sweden_map_tiles
           . $GITHUB_WORKSPACE/src/tiles/construction.sh
-          . $GITHUB_WORKSPACE/src/tiles/communication.sh
-          . $GITHUB_WORKSPACE/src/tiles/text.sh
       - name: Save Tiles
         run: |
           sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" $HOME/sweden_map_tiles/ ${{ secrets.USER }}@${{ secrets.HOST }}:sverige/sweden_map_tiles/
