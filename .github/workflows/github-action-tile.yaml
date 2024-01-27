@@ -21,7 +21,8 @@ jobs:
           sudo make install
       - name: Copy GeoJSON files
         run: |
-          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:geojson/ $HOME/geojson
+          mkdir $HOME/geojson/
+          sshpass -p "${{ secrets.PASSWORD }}" rsync -r -e "ssh -o StrictHostKeyChecking=no -p${{ secrets.PORT }}" ${{ secrets.USER }}@${{ secrets.HOST }}:sverige/geojson_50/ $HOME/geojson/
       - name: Create tiles
         run: |
           cd $HOME
