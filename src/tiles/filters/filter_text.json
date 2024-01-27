@@ -1,0 +1,26 @@
+{
+  "*": [
+    "any",
+    [
+      "all",
+      [">=", "$zoom", 4],
+      ["==", "textstorleksklass", "10"],
+      ["==", "textkategori", "Tätort"]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 6],
+      ["==", "textstorleksklass", "10"],
+      ["==", "textkategori", "Tätort"]
+    ],
+    ["all", [">=", "$zoom", 8], ["==", "textstorleksklass", "9"]],
+    ["all", [">=", "$zoom", 9], ["==", "textstorleksklass", "8"]],
+    ["all", [">=", "$zoom", 10], ["==", "textstorleksklass", "7"]],
+    ["all", [">=", "$zoom", 11], ["==", "textstorleksklass", "6"]],
+    ["all", [">=", "$zoom", 12], ["==", "textstorleksklass", "5"]],
+    ["all", [">=", "$zoom", 13], ["==", "textstorleksklass", "4"]],
+    ["all", [">=", "$zoom", 14], ["==", "textstorleksklass", "3"]],
+    ["all", [">=", "$zoom", 14], ["==", "textstorleksklass", "2"]],
+    ["all", [">=", "$zoom", 14], ["==", "textstorleksklass", "1"]]
+  ]
+}

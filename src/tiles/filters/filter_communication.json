@@ -1,0 +1,60 @@
+{
+  "*": [
+    "any",
+    ["all", [">=", "$zoom", 4], ["==", "objekttyp", "Motorväg"]],
+    ["all", [">=", "$zoom", 4], ["==", "objekttyp", "Motortrafikled"]],
+    ["all", [">=", "$zoom", 4], ["==", "objekttyp", "Mötesfri väg"]],
+    [
+      "all",
+      [">=", "$zoom", 4],
+      [">=", "length_m", 10000],
+      ["==", "objekttyp", "Landsväg"]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 7],
+      ["<", "length_m", 10000],
+      ["==", "objekttyp", "Landsväg"]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 5],
+      [">=", "length_m", 10000],
+      ["==", "objekttyp", "Landsväg liten"]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 9],
+      ["<", "length_m", 10000],
+      ["==", "objekttyp", "Landsväg liten"]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 6],
+      [">=", "length_m", 10000],
+      ["==", "objekttyp", "Övergripande länk"]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 10],
+      ["<", "length_m", 10000],
+      ["==", "objekttyp", "Övergripande länk"]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 6],
+      [">=", "length_m", 10000],
+      ["==", "objekttyp", "Huvudgata"]
+    ],
+    [
+      "all",
+      [">=", "$zoom", 10],
+      ["<", "length_m", 10000],
+      ["==", "objekttyp", "Huvudgata"]
+    ],
+    ["all", [">=", "$zoom", 11], ["==", "objekttyp", "Lokalgata stor"]],
+    ["all", [">=", "$zoom", 12], ["==", "objekttyp", "Lokalgata liten"]],
+    ["all", [">=", "$zoom", 13], ["==", "objekttyp", "Småväg"]],
+    ["all", [">=", "$zoom", 13], ["==", "objekttyp", "Småväg enkel standard"]]
+  ]
+}
