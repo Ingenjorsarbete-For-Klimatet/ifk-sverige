@@ -4,7 +4,6 @@
 
 @layer base {
   :root {
-    --sea: 198 76.5 93.3;
     --background: 0 0% 100%;
     --foreground: 222.2 84% 4.9%;
 
@@ -34,6 +33,8 @@
     --ring: 222.2 84% 4.9%;
 
     --radius: 0.5rem;
+
+    --sea: 198 76.5 93.3;
   }
 
   .dark {

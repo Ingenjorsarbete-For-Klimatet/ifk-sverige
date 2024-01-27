@@ -36,9 +36,11 @@ export function App() {
     const ground = Object.entries(state.layer["ground"])
       .filter(([_, value]) => value == true)
       .map(([key, _]) => key);
+
     const road = Object.entries(state.layer["road"])
       .filter(([_, value]) => value == true)
       .map(([key, _]) => key);
+
     const construction = Object.entries(state.layer["construction"])
       .filter(([_, value]) => value == true)
       .map(([key, _]) => key);
@@ -68,14 +70,33 @@ export function App() {
         id: "road-layer",
         data: "sweden_road.pmtiles",
         // @ts-ignore
-        getLineColor: (f: any) => COLOR[f.properties.objekttyp],
+        pointType: "text",
+        // @ts-ignore
+        getLineColor: (f: any) => {
+          //console.log(f)
+          //console.log(f.properties.vardvagnummer)
+          return COLOR[f.properties.objekttyp];
+        },
+        getText: (f: any) => {
+          //console.log(f)
+          return f.properties.vardvagnummer;
+        },
         stroked: true,
+        strokeColor: [255, 0, 0],
+        strokeWeight: 2,
         lineWidthMinPixels: 2,
         loadOptions: {
           mvt: {
             layers: road,
           },
         },
+        getTextSize: 12,
+        textCharacterSet: "auto",
+        textFontFamily: "Helvetica",
+        getTextColor: [0, 0, 0],
+        textOutlineColor: [255, 255, 255, 200],
+        textOutlineWidth: 1,
+        textFontSettings: { sdf: true },
       }),
     );
 
@@ -96,19 +117,23 @@ export function App() {
       }),
     );
 
-    // layers.push(new PMTLayer({
-    //   id: "text-layer",
-    //   data: "sweden_text.pmtiles",
-    //   // @ts-ignore
-    //   pointType: "text",
-    //   // @ts-ignore
-    //   getText: (f) => f.properties.textstrang,
-    //   getTextSize: 10,
-    //   characterSet: ["\u00E5", "\u00E4", "\u00F6"],
-    //   //textOutlineColor: [0, 0, 0, 255],
-    //   //textOutlineWidth: 2,
-    //   getTextColor: [0, 0, 0],
-    // }))
+    layers.push(
+      new PMTLayer({
+        id: "text-layer",
+        data: "sweden_text.pmtiles",
+        // @ts-ignore
+        pointType: "text",
+        // @ts-ignore
+        getText: (f) => f.properties.textstrang,
+        getTextSize: 12,
+        textCharacterSet: "auto",
+        textFontFamily: "Helvetica",
+        getTextColor: [0, 0, 0],
+        textOutlineColor: [255, 255, 255, 200],
+        textOutlineWidth: 1,
+        textFontSettings: { sdf: true },
+      }),
+    );
 
     return layers;
   });
