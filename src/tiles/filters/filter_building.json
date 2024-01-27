@@ -1,0 +1,12 @@
+{
+  "*": [
+    "any",
+    ["all", [">=", "$zoom", 11], ["==", "objekttyp", "Bostad"]],
+    ["all", [">=", "$zoom", 11], ["==", "objekttyp", "Ekonomibyggnad"]],
+    ["all", [">=", "$zoom", 11], ["==", "objekttyp", "Industri"]],
+    ["all", [">=", "$zoom", 11], ["==", "objekttyp", "Komplementbyggnad"]],
+    ["all", [">=", "$zoom", 11], ["==", "objekttyp", "Samhällsfunktion"]],
+    ["all", [">=", "$zoom", 11], ["==", "objekttyp", "Verksamhet"]],
+    ["all", [">=", "$zoom", 11], ["==", "objekttyp", "Övrig byggnad"]]
+  ]
+}
