@@ -15,12 +15,7 @@ requires-python = ">=3.9"
 dependencies = ["fastapi ~= 0.108", "uvicorn[standard]", "geopandas ~= 0.14", "pyarrow ~= 14.0"]
 
 [project.optional-dependencies]
-lint = [
-    "flake8 ~= 5.0",
-    "flake8-bandit ~= 4.1",
-    "flake8-docstrings ~= 1.6",
-    "flake8-black ~= 0.3",
-]
+lint = ["ruff ~= 0.1"]
 type = ["mypy ~= 1.7.1", "types-requests ~= 2.28", "pandas-stubs ~= 1.5"]
 test = ["pytest ~= 7.1", "coverage ~= 6.5", "pytest-cov ~= 4.0", "httpx"]
 doc = [
@@ -33,7 +28,6 @@ dev = [
     "ifk-sweden-map[type]",
     "ifk-sweden-map[test]",
     "ifk-sweden-map[doc]",
-    "black ~= 22.8",
     "pre-commit ~= 2.20",
     "ipykernel"
 ]
