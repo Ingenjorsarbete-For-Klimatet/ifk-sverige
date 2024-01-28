@@ -41,10 +41,22 @@ h1 {
   z-index: 1;
 }
 
-div#nav {
+header {
+  z-index: 1;
   position: absolute;
   top: 30px;
   left: 30px;
+}
+
+div#map {
+  z-index: 0;
+}
+
+footer {
+  z-index: 1;
+  position: absolute;
+  bottom: 30px;
+  right: 30px;
 }
 
 @media (prefers-color-scheme: light) {

@@ -94,16 +94,16 @@ export const COLOR: { [index: string]: Array<number> } = {
   "Sluten bebyggelse": [230, 230, 230],
   "Industri- och handelsbebyggelse": [240, 240, 240],
 
-  "Öppen mark": [155, 118, 83, 50],
+  "Öppen mark": [155, 118, 83],
   "Barr- och blandskog": [110, 177, 131],
-  Lövskog: [45, 90, 39, 50],
+  Lövskog: [45, 90, 39],
 
-  Fruktodling: [199, 55, 47, 50],
-  Åker: [245, 222, 179, 50],
+  Fruktodling: [199, 55, 47],
+  Åker: [245, 222, 179],
 
-  Fjällbjörkskog: [99, 126, 29, 50],
-  Glaciär: [0, 134, 1450, 100],
-  Kalfjäll: [125, 200, 181, 100],
+  Fjällbjörkskog: [99, 126, 29],
+  Glaciär: [0, 134, 145],
+  Kalfjäll: [125, 200, 181],
 
   Bostad: [30, 30, 30, 200],
   Ekonomibyggnad: [30, 30, 30, 200],
@@ -124,4 +124,16 @@ export const COLOR: { [index: string]: Array<number> } = {
   "Mötesfri väg": [255, 255, 255, 200],
   Småväg: [255, 255, 255, 200],
   "Småväg enkel standard": [255, 255, 255, 200],
+};
+
+export const COLOR_CSS: { [index: string]: string } = {
+  "Granskog/Mark": "sverige",
+  "Anlagt vatten": "vatten",
+  Vattendragsyta: "vatten",
+  Sjö: "vatten",
+
+  "Hög bebyggelse": "hog-bebygelse",
+  "Låg bebyggelse": "låg-bebygelse",
+  "Sluten bebyggelse": "sluten-bebygelse",
+  "Industri- och handelsbebyggelse": "industri-bebygelse",
 };

@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 import DeckGL from "@deck.gl/react/typed";
 import { MapView } from "@deck.gl/core/typed";
-import { useMenuStore, buildLayerStore } from "./Menu.tsx";
+import { useMenuStore } from "./Header.tsx";
 import { STROKED, COLOR } from "./config.tsx";
 
 function getTooltip({ tile }: any) {
@@ -38,10 +38,6 @@ export function App() {
       .map(([key, _]) => key);
 
     const road = Object.entries(state.layer["road"])
-      .filter(([_, value]) => value == true)
-      .map(([key, _]) => key);
-
-    const construction = Object.entries(state.layer["construction"])
       .filter(([_, value]) => value == true)
       .map(([key, _]) => key);
 
