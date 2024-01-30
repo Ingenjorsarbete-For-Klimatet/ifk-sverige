@@ -1,6 +1,5 @@
 import { useState } from "react";
 import { create } from "zustand";
-
 import {
   Button,
   Box,
@@ -12,43 +11,23 @@ import {
   Switch,
 } from "@radix-ui/themes";
 import { GlobeIcon, LayersIcon } from "@radix-ui/react-icons";
-
 import AsyncSelect from "react-select/async";
-
 import { FlyToInterpolator } from "@deck.gl/core/typed";
-
-import { ground, road, construction, COLOR_CSS } from "./config";
-
-export function buildLayerStore(checked: boolean) {
-  let result: { [index: string]: any } = {
-    ground: {},
-    road: {},
-    construction: {},
-  };
-  for (const [_, value] of Object.entries(ground)) {
-    result["ground"][value] = checked;
-  }
-
-  for (const [_, value] of Object.entries(road)) {
-    result["road"][value] = checked;
-  }
-
-  for (const [_, value] of Object.entries(construction)) {
-    result["construction"][value] = checked;
-  }
-
-  return result;
-}
+import { mapElements } from "./config";
 
 export const useMenuStore = create((set) => ({
-  layer: buildLayerStore(true),
+  layer: structuredClone(mapElements),
   searchResult: {},
   searchView: {},
-  toggleLayer: (type: string, selectedLayer: string, checked: boolean) =>
+  toggleLayer: (selectedLayer: string, checked: boolean) =>
     set((state: any): any => ({
       layer: {
         ...state.layer,
-        [type]: { ...state.layer[type], [selectedLayer]: checked },
+        [selectedLayer]: {
+          ...state.layer[selectedLayer],
+          ["checked"]: checked,
+          ["color"]: checked ? mapElements[selectedLayer].color : [0, 0, 0, 0],
+        },
       },
     })),
   setSearchResult: (result: any, fun: any) => {
@@ -107,34 +86,33 @@ async function loadOptions(inputValue: string) {
 
 const defaultSearchOptions = await getDefaultSearchOptions(options);
 
-const groundList = Object.keys(ground).map((key) => {
-  return (
-    <LayerLabel
-      type={"ground"}
-      value={ground[key]}
-      label={key}
-      checkedColor={COLOR_CSS[key]}
-    />
-  );
-});
+const groundList = Object.entries(mapElements)
+  .filter(([_, value]) => value["type"] == "ground")
+  .map(([key, _]) => {
+    return <LayerLabel value={key} label={key} />;
+  });
 
-const roadList = Object.keys(road).map((key) => {
-  return <LayerLabel type={"road"} value={road[key]} label={key} />;
-});
+const communicationList = Object.entries(mapElements)
+  .filter(([_, value]) => value["type"] == "communication")
+  .map(([key, _]) => {
+    return <LayerLabel value={key} label={key} />;
+  });
 
-function LayerLabel({ type, value, label, checkedColor }: any): any {
+// @ts-ignore
+function LayerLabel({ _, label }: any): any {
   const layer = useMenuStore((state: any) => state.layer);
   const toggleLayer = useMenuStore((state: any) => state.toggleLayer);
-  console.log(checkedColor);
 
   return (
     <Text as="label" size="2">
       <Flex justify="between" gap="2" style={{ margin: "9px 0" }}>
         {label}
         <Switch
-          id={value}
-          checked={layer[type][value]}
-          onCheckedChange={(e) => toggleLayer(type, value, e)}
+          id={label}
+          checked={layer[label].checked}
+          onCheckedChange={(e) => {
+            return toggleLayer(label, e);
+          }}
           variant="classic"
         />
       </Flex>
@@ -173,15 +151,26 @@ export function Header() {
       <AsyncSelect
         classNames={{
           control: () =>
-            "rt-reset rt-BaseButton rt-Button rt-r-size-3 rt-variant-outline",
+            "rt-reset rt-BaseButton rt-Button rt-r-size-3 rt-variant-surface",
           menuList: () => "rt-ScrollAreaRoot",
         }}
         styles={{
-          control: (baseStyles, state) => ({
+          control: (baseStyles, _) => ({
             ...baseStyles,
-            width: "200px",
+            paddingLeft: 0,
+            paddingRight: 0,
+            width: "250px",
+            backgroundColor: "var(--color-surface-accent)",
           }),
         }}
+        theme={(theme) => ({
+          ...theme,
+          colors: {
+            ...theme.colors,
+            primary25: "var(--accent-a8)",
+            primary: "black",
+          },
+        })}
         placeholder="Sök karta"
         isDisabled={isDisabled}
         isLoading={isLoading}
@@ -197,7 +186,7 @@ export function Header() {
       />
       <Popover.Root>
         <Popover.Trigger>
-          <Button size="3" variant="outline">
+          <Button size="3" variant="surface">
             <GlobeIcon />
           </Button>
         </Popover.Trigger>
@@ -220,13 +209,13 @@ export function Header() {
               </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="mark">
-              <ScrollArea scrollbars="vertical" style={{ height: 250 }}>
+              <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
                 <Box style={{ padding: "0 10px" }}>{groundList}</Box>
               </ScrollArea>
             </Tabs.Content>
             <Tabs.Content value="vag">
-              <ScrollArea scrollbars="vertical" style={{ height: 250 }}>
-                <Box style={{ padding: "0 10px" }}>{roadList}</Box>
+              <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
+                <Box style={{ padding: "0 10px" }}>{communicationList}</Box>
               </ScrollArea>
             </Tabs.Content>
             <Tabs.Content value="granser"></Tabs.Content>
@@ -236,7 +225,7 @@ export function Header() {
       </Popover.Root>
       <Popover.Root>
         <Popover.Trigger>
-          <Button size="3" variant="outline">
+          <Button size="3" variant="surface">
             <LayersIcon />
           </Button>
         </Popover.Trigger>
@@ -253,13 +242,13 @@ export function Header() {
               </Tabs.Trigger>
             </Tabs.List>
             <Tabs.Content value="vader">
-              <ScrollArea scrollbars="vertical" style={{ height: 250 }}>
-                <Box style={{ padding: "0 10px" }}>{roadList}</Box>
+              <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
+                <Box style={{ padding: "0 10px" }}>{communicationList}</Box>
               </ScrollArea>
             </Tabs.Content>
             <Tabs.Content value="vatten">
-              <ScrollArea scrollbars="vertical" style={{ height: 250 }}>
-                <Box style={{ padding: "0 10px" }}>{roadList}</Box>
+              <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
+                <Box style={{ padding: "0 10px" }}>{communicationList}</Box>
               </ScrollArea>
             </Tabs.Content>
           </Tabs.Root>

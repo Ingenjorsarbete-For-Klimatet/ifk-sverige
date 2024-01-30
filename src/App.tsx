@@ -3,7 +3,7 @@ import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 import DeckGL from "@deck.gl/react/typed";
 import { MapView } from "@deck.gl/core/typed";
 import { useMenuStore } from "./Header.tsx";
-import { STROKED, COLOR } from "./config.tsx";
+import { STROKED, mapElements } from "./config.tsx";
 
 function getTooltip({ tile }: any) {
   if (tile) {
@@ -33,15 +33,19 @@ export function App() {
   });
 
   const layers = useMenuStore((state: any) => {
-    const ground = Object.entries(state.layer["ground"])
-      .filter(([_, value]) => value == true)
-      .map(([key, _]) => key);
-
-    const road = Object.entries(state.layer["road"])
-      .filter(([_, value]) => value == true)
-      .map(([key, _]) => key);
-
     let layers = [];
+
+    const ground: { [index: string]: any } = {};
+    const communication: { [index: string]: any } = {};
+    for (const p in state.layer) {
+      if (state.layer[p].type == "ground") {
+        ground[p] = state.layer[p];
+      }
+
+      if (state.layer[p].type == "communication") {
+        communication[p] = state.layer[p];
+      }
+    }
 
     layers.push(
       new PMTLayer({
@@ -49,42 +53,43 @@ export function App() {
         data: "sweden_ground.pmtiles",
         pickable: true,
         // @ts-ignore
-        getFillColor: (f: any) => COLOR[f.properties.objekttyp],
+        getFillColor: (f: any) => ground[f.properties.objekttyp].color,
         stroked: true,
         lineWidthMinPixels: (f: any) => STROKED[f.properties.objekttyp],
         getLineColor: [0, 0, 0, 20],
         loadOptions: {
           mvt: {
-            layers: ground,
+            layers: Object.entries(ground).map(([_, value]) => value.name),
           },
+        },
+        updateTriggers: {
+          getFillColor: ground,
         },
       }),
     );
 
     layers.push(
       new PMTLayer({
-        id: "road-layer",
+        id: "communication-layer",
         data: "sweden_road.pmtiles",
         // @ts-ignore
         pointType: "text",
         // @ts-ignore
-        getLineColor: (f: any) => {
-          //console.log(f)
-          //console.log(f.properties.vardvagnummer)
-          return COLOR[f.properties.objekttyp];
-        },
-        getText: (f: any) => {
-          //console.log(f)
-          return f.properties.vardvagnummer;
-        },
+        getLineColor: (f: any) => communication[f.properties.objekttyp].color,
+        getText: (f: any) => f.properties.vardvagnummer,
         stroked: true,
         strokeColor: [255, 0, 0],
         strokeWeight: 2,
         lineWidthMinPixels: 2,
         loadOptions: {
           mvt: {
-            layers: road,
+            layers: Object.entries(communication).map(
+              ([_, value]) => value.name,
+            ),
           },
+        },
+        updateTriggers: {
+          getLineColor: communication,
         },
         getTextSize: 12,
         textCharacterSet: "auto",
@@ -101,7 +106,7 @@ export function App() {
         id: "building-layer",
         data: "sweden_building.pmtiles",
         // @ts-ignore
-        getFillColor: [(f: any) => COLOR[f.properties.objekttyp]],
+        getFillColor: [(f: any) => mapElements[f.properties.objekttyp]],
         stroked: false,
         lineWidthMinPixels: 1,
         getLineColor: [0, 0, 0, 20],
@@ -126,7 +131,7 @@ export function App() {
         textFontFamily: "Helvetica",
         getTextColor: [0, 0, 0],
         textOutlineColor: [255, 255, 255, 200],
-        textOutlineWidth: 1,
+        textOutlineWidth: 10,
         textFontSettings: { sdf: true },
       }),
     );

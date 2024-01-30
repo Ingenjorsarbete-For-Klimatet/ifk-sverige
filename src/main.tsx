@@ -4,7 +4,7 @@ import { Footer } from "./Footer.tsx";
 import { Theme } from "@radix-ui/themes";
 
 import "@radix-ui/themes/styles.css";
-import "./App.css";
+import "./App.module.css";
 
 renderToDOM(
   document.getElementById("root"),

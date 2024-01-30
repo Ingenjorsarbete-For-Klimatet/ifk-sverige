@@ -6,7 +6,7 @@ export function Footer() {
     <Flex gap="2">
       <Popover.Root>
         <Popover.Trigger>
-          <Button size="3" variant="outline">
+          <Button size="3" variant="surface">
             <InfoCircledIcon />
           </Button>
         </Popover.Trigger>
@@ -16,7 +16,7 @@ export function Footer() {
       </Popover.Root>
       <Popover.Root>
         <Popover.Trigger>
-          <Button size="3" variant="outline">
+          <Button size="3" variant="surface">
             <EnvelopeClosedIcon />
           </Button>
         </Popover.Trigger>

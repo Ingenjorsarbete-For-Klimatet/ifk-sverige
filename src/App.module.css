@@ -1,3 +1,6 @@
+@value colors: "./colors.module.css";
+@value water from colors;
+
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
@@ -5,13 +8,17 @@
 
   color-scheme: light dark;
   color: rgba(255, 255, 255, 0.87);
-  background-color: rgb(222, 244, 252);
+  background-color: water;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background-color: water !important;
 }
 
 a {
@@ -30,6 +37,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
+  background-color: water;
 }
 
 h1 {
@@ -62,7 +70,7 @@ footer {
 @media (prefers-color-scheme: light) {
   :root {
     color: #213547;
-    background-color: rgb(222, 244, 252);
+    background-color: water;
   }
 
   a:hover {

@@ -1,0 +1,34 @@
+@value ground: hsla(144, 35.71%, 72.55%, 1);
+@value water: hsla(196,83.3%,92.9%,1);
+@value city-dense: hsla(0, 0%, 82.35%, 1);
+@value city-sparse: hsla(0, 0%, 86.27%, 1);
+@value city-closed: hsla(0, 0%, 90.2%, 1);
+@value city-industry: hsla(0, 0%, 94.12%, 1);
+@value open-ground: hsla(29.17, 30.25%, 46.67%, 1);
+@value coniferous-forest: hsla(138.81, 30.04%, 56.27%, 1);
+@value leaf-fores: hsla(112.94, 39.53%, 25.29%, 1);
+@value fruit-farm: hsla(3.16, 61.79%, 48.24%, 1);
+@value field: hsla(39.09, 76.74%, 83.14%, 1);
+@value mountain-birch: hsla(76.7, 62.58%, 30.39, 1);
+@value glacier: hsla(184.55, 100%, 28.43, 1);
+@value open-mountain: hsla(164.8, 40.54%, 63.73%, 1);
+
+@value residence-building: hsla(0, 0%, 11.76%, 1);
+@value economy-building: hsla(0, 0%, 11.76%, 1);
+@value industry-building: hsla(0, 0%, 11.76%, 1);
+@value complement-building: hsla(0, 0%, 11.76%, 1);
+@value community-building: hsla(0, 0%, 11.76%, 1);
+@value operation-building: hsla(0, 0%, 11.76%, 1);
+@value other-building: hsla(0, 0%, 11.76%, 1);
+
+@value motorway: hsla(0, 0%, 100%, 1);
+@value motor-trafic-route: hsla(0, 0%, 100%, 1);
+@value overall-link: hsla(0, 0%, 100%, 1);
+@value country-road: hsla(0, 0%, 100%, 1);
+@value country-road-small: hsla(0, 0%, 100%, 1);
+@value main-street: hsla(0, 0%, 100%, 1);
+@value local-street-large: hsla(0, 0%, 100%, 1);
+@value local-street-small: hsla(0, 0%, 100%, 1);
+@value meeting-free-road: hsla(0, 0%, 100%, 1);
+@value small-road: hsla(0, 0%, 100%, 1);
+@value small-road-simple: hsla(0, 0%, 100%, 1);
