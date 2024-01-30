@@ -3,7 +3,7 @@ import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 import DeckGL from "@deck.gl/react/typed";
 import { MapView } from "@deck.gl/core/typed";
 import { useMenuStore } from "./Header.tsx";
-import { STROKED, mapElements } from "./config.tsx";
+import { mapElements } from "./config.tsx";
 
 function getTooltip({ tile }: any) {
   if (tile) {
@@ -55,11 +55,13 @@ export function App() {
         // @ts-ignore
         getFillColor: (f: any) => ground[f.properties.objekttyp].color,
         stroked: true,
-        lineWidthMinPixels: (f: any) => STROKED[f.properties.objekttyp],
+        lineWidthMinPixels: (f: any) => ground[f.properties.objekttyp].stroke,
         getLineColor: [0, 0, 0, 20],
         loadOptions: {
           mvt: {
-            layers: Object.entries(ground).map(([_, value]) => value.name),
+            layers: Object.entries(ground)
+              .filter(([_, value]) => value["checked"] == true)
+              .map(([_, value]) => value.name),
           },
         },
         updateTriggers: {
@@ -83,9 +85,9 @@ export function App() {
         lineWidthMinPixels: 2,
         loadOptions: {
           mvt: {
-            layers: Object.entries(communication).map(
-              ([_, value]) => value.name,
-            ),
+            layers: Object.entries(communication)
+              .filter(([_, value]) => value["checked"] == true)
+              .map(([_, value]) => value.name),
           },
         },
         updateTriggers: {
