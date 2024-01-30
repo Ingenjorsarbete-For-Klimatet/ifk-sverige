@@ -16,9 +16,15 @@ import { FlyToInterpolator } from "@deck.gl/core/typed";
 import { mapElements } from "./config";
 
 export const useMenuStore = create((set) => ({
+  theme: "light",
   layer: structuredClone(mapElements),
   searchResult: {},
   searchView: {},
+  setTheme: () => {
+    set((state: any): any => ({
+      theme: state.theme == "light" ? "dark" : "light",
+    }));
+  },
   toggleLayer: (selectedLayer: string, checked: boolean) =>
     set((state: any): any => ({
       layer: {

@@ -1,9 +1,12 @@
 import { Button, Flex, Popover } from "@radix-ui/themes";
 import { InfoCircledIcon, EnvelopeClosedIcon } from "@radix-ui/react-icons";
 
+import { ThemeButton } from "./utils/theme";
+
 export function Footer() {
   return (
     <Flex gap="2">
+      <ThemeButton />
       <Popover.Root>
         <Popover.Trigger>
           <Button size="3" variant="surface">
