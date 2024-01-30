@@ -243,12 +243,12 @@ export function Header() {
             </Tabs.List>
             <Tabs.Content value="vader">
               <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
-                <Box style={{ padding: "0 10px" }}>{communicationList}</Box>
+                <Box style={{ padding: "0 10px" }}>{}</Box>
               </ScrollArea>
             </Tabs.Content>
             <Tabs.Content value="vatten">
               <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
-                <Box style={{ padding: "0 10px" }}>{communicationList}</Box>
+                <Box style={{ padding: "0 10px" }}>{}</Box>
               </ScrollArea>
             </Tabs.Content>
           </Tabs.Root>

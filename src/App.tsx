@@ -128,12 +128,37 @@ export function App() {
         pointType: "text",
         // @ts-ignore
         getText: (f) => f.properties.textstrang,
-        getTextSize: 12,
+        getTextSize: (f: any) => {
+          switch (f.properties.textstorleksklass) {
+            case "10":
+              return 14;
+            case "9":
+              return 14;
+            case "8":
+              return 14;
+            case "7":
+              return 14;
+            case "6":
+              return 12;
+            case "5":
+              return 12;
+            case "4":
+              return 12;
+            case "3":
+              return 10;
+            case "2":
+              return 10;
+            case "1":
+              return 10;
+            default:
+              return 10;
+          }
+        },
         textCharacterSet: "auto",
         textFontFamily: "Helvetica",
         getTextColor: [0, 0, 0],
-        textOutlineColor: [255, 255, 255, 200],
-        textOutlineWidth: 10,
+        textOutlineColor: [255, 255, 255, 255],
+        textOutlineWidth: 4,
         textFontSettings: { sdf: true },
       }),
     );
