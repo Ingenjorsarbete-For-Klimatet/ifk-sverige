@@ -2,7 +2,7 @@ import { createRoot } from "react-dom/client";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 import DeckGL from "@deck.gl/react/typed";
 import { MapView } from "@deck.gl/core/typed";
-import { useMenuStore } from "./Header.tsx";
+import { useMenuStore } from "./Store";
 import { mapElements } from "./config.tsx";
 
 function getTooltip({ tile }: any) {
@@ -24,6 +24,9 @@ const INITIAL_VIEW_STATE = {
 };
 
 export function App() {
+  const zoom = useMenuStore((state: any) => state.zoom);
+  const setZoom = useMenuStore((state: any) => state.setZoom);
+
   const searchView = useMenuStore((state: any) => {
     if (state.searchView.zoom) {
       return state.searchView;
@@ -53,7 +56,21 @@ export function App() {
         data: "sweden_ground.pmtiles",
         pickable: true,
         // @ts-ignore
-        getFillColor: (f: any) => ground[f.properties.objekttyp].color,
+        getFillColor: (f: any) => {
+          if (
+            f.properties.objekttyp == "Sverige" ||
+            f.properties.objekttyp == "Sjö" ||
+            f.properties.objekttyp == "Anlagt vatten" ||
+            f.properties.objekttyp == "Vattendragsyta"
+          ) {
+            return ground[f.properties.objekttyp].color;
+          } else {
+            let color = ground[f.properties.objekttyp].color;
+            color[3] = Math.pow(zoom, 2);
+            console.log(color);
+            return color;
+          }
+        },
         stroked: true,
         lineWidthMinPixels: (f: any) => ground[f.properties.objekttyp].stroke,
         getLineColor: [0, 0, 0, 20],
@@ -173,6 +190,13 @@ export function App() {
       initialViewState={searchView}
       controller={true}
       getTooltip={getTooltip}
+      onViewStateChange={({ viewState }) => {
+        setZoom(viewState.zoom);
+        return {
+          ...viewState,
+          zoom: Math.max(viewState.zoom, 3),
+        };
+      }}
     ></DeckGL>
   );
 }

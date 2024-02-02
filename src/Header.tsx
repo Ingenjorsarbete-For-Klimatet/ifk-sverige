@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { create } from "zustand";
 import {
   Button,
   Box,
@@ -12,46 +11,9 @@ import {
 } from "@radix-ui/themes";
 import { GlobeIcon, LayersIcon } from "@radix-ui/react-icons";
 import AsyncSelect from "react-select/async";
-import { FlyToInterpolator } from "@deck.gl/core/typed";
 import { mapElements } from "./config";
-
-export const useMenuStore = create((set) => ({
-  theme: "light",
-  layer: structuredClone(mapElements),
-  searchResult: {},
-  searchView: {},
-  setTheme: () => {
-    set((state: any): any => ({
-      theme: state.theme == "light" ? "dark" : "light",
-    }));
-  },
-  toggleLayer: (selectedLayer: string, checked: boolean) =>
-    set((state: any): any => ({
-      layer: {
-        ...state.layer,
-        [selectedLayer]: {
-          ...state.layer[selectedLayer],
-          ["checked"]: checked,
-          ["color"]: checked ? mapElements[selectedLayer].color : [0, 0, 0, 0],
-        },
-      },
-    })),
-  setSearchResult: (result: any, fun: any) => {
-    const view = {
-      latitude: result.geometry_xy[1],
-      longitude: result.geometry_xy[0],
-      zoom: 11,
-      minZoom: 4,
-      maxZoom: 14,
-      pitch: 0,
-      bearing: 0,
-      transitionDuration: 3000,
-      transitionInterpolator: new FlyToInterpolator(),
-    };
-    fun(view);
-    return set(() => ({ searchResult: result, searchView: view }));
-  },
-}));
+import { useMenuStore } from "./Store";
+import { Theme } from "@radix-ui/themes";
 
 const options = ["Stockholm", "Göteborg", "Malmö"];
 
@@ -151,115 +113,130 @@ export function Header() {
     maxPitch: 0,
     bearing: 0,
   });
+  const theme = useMenuStore((state: any) => state.theme);
 
   return (
-    <Flex gap="2">
-      <AsyncSelect
-        classNames={{
-          control: () =>
-            "rt-reset rt-BaseButton rt-Button rt-r-size-3 rt-variant-surface",
-          menuList: () => "rt-ScrollAreaRoot",
-        }}
-        styles={{
-          control: (baseStyles, _) => ({
-            ...baseStyles,
-            paddingLeft: 0,
-            paddingRight: 0,
-            width: "250px",
-            backgroundColor: "var(--color-surface-accent)",
-          }),
-        }}
-        theme={(theme) => ({
-          ...theme,
-          colors: {
-            ...theme.colors,
-            primary25: "var(--accent-a8)",
-            primary: "black",
-          },
-        })}
-        placeholder="Sök karta"
-        isDisabled={isDisabled}
-        isLoading={isLoading}
-        isClearable={isClearable}
-        isRtl={isRtl}
-        isSearchable={isSearchable}
-        getOptionLabel={(e: any) => `${e.textstrang} ${e.textkategori}`}
-        getOptionValue={(e: any) => e.geometry_xy}
-        cacheOptions
-        defaultOptions={defaultSearchOptions}
-        loadOptions={loadOptions}
-        onChange={(e) => setSearchResult(e, setInitialViewState)}
-      />
-      <Popover.Root>
-        <Popover.Trigger>
-          <Button size="3" variant="surface">
-            <GlobeIcon />
-          </Button>
-        </Popover.Trigger>
-        <Popover.Content style={{ width: 300 }}>
-          <Tabs.Root defaultValue="mark">
-            <Tabs.List
-              style={{ display: "flex", justifyContent: "space-around" }}
-            >
-              <Tabs.Trigger style={{ width: "25%" }} value="mark">
-                Mark
-              </Tabs.Trigger>
-              <Tabs.Trigger style={{ width: "25%" }} value="vag">
-                Väg
-              </Tabs.Trigger>
-              <Tabs.Trigger style={{ width: "25%" }} value="granser">
-                Gränser
-              </Tabs.Trigger>
-              <Tabs.Trigger style={{ width: "25%" }} value="terrang">
-                Terräng
-              </Tabs.Trigger>
-            </Tabs.List>
-            <Tabs.Content value="mark">
-              <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
-                <Box style={{ padding: "0 10px" }}>{groundList}</Box>
-              </ScrollArea>
-            </Tabs.Content>
-            <Tabs.Content value="vag">
-              <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
-                <Box style={{ padding: "0 10px" }}>{communicationList}</Box>
-              </ScrollArea>
-            </Tabs.Content>
-            <Tabs.Content value="granser"></Tabs.Content>
-            <Tabs.Content value="terrang"></Tabs.Content>
-          </Tabs.Root>
-        </Popover.Content>
-      </Popover.Root>
-      <Popover.Root>
-        <Popover.Trigger>
-          <Button size="3" variant="surface">
-            <LayersIcon />
-          </Button>
-        </Popover.Trigger>
-        <Popover.Content style={{ width: 250 }}>
-          <Tabs.Root defaultValue="vader">
-            <Tabs.List
-              style={{ display: "flex", justifyContent: "space-around" }}
-            >
-              <Tabs.Trigger style={{ width: "50%" }} value="vader">
-                Väder
-              </Tabs.Trigger>
-              <Tabs.Trigger style={{ width: "50%" }} value="vatten">
-                Vatten
-              </Tabs.Trigger>
-            </Tabs.List>
-            <Tabs.Content value="vader">
-              <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
-                <Box style={{ padding: "0 10px" }}>{}</Box>
-              </ScrollArea>
-            </Tabs.Content>
-            <Tabs.Content value="vatten">
-              <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
-                <Box style={{ padding: "0 10px" }}>{}</Box>
-              </ScrollArea>
-            </Tabs.Content>
-          </Tabs.Root>
-        </Popover.Content>
-      </Popover.Root>
-    </Flex>
+    <Theme
+      accentColor="gray"
+      grayColor="mauve"
+      panelBackground="translucent"
+      scaling="100%"
+      radius="medium"
+      appearance={theme}
+    >
+      <Flex gap="2">
+        <AsyncSelect
+          classNames={{
+            control: () =>
+              "rt-reset rt-BaseButton rt-Button rt-r-size-3 rt-variant-surface",
+            menuList: () => "rt-ScrollAreaRoot",
+          }}
+          styles={{
+            control: (baseStyles, _) => ({
+              ...baseStyles,
+              paddingLeft: 0,
+              paddingRight: 0,
+              width: "250px",
+              color: "var(--accent-a11)",
+              backgroundColor: "var(--color-surface-accent)",
+            }),
+            menuList: (baseStyles, _) => ({
+              ...baseStyles,
+              backgroundColor: "var(--color-panel-solid)",
+            }),
+          }}
+          theme={(theme) => ({
+            ...theme,
+            colors: {
+              ...theme.colors,
+              primary25: "var(--accent-a8)",
+              primary: "var(--accent-a11)",
+            },
+          })}
+          placeholder="Sök karta"
+          isDisabled={isDisabled}
+          isLoading={isLoading}
+          isClearable={isClearable}
+          isRtl={isRtl}
+          isSearchable={isSearchable}
+          getOptionLabel={(e: any) => `${e.textstrang} ${e.textkategori}`}
+          getOptionValue={(e: any) => e.geometry_xy}
+          cacheOptions
+          defaultOptions={defaultSearchOptions}
+          loadOptions={loadOptions}
+          onChange={(e) => setSearchResult(e, setInitialViewState)}
+        />
+        <Popover.Root>
+          <Popover.Trigger>
+            <Button size="3" variant="surface">
+              <GlobeIcon />
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content style={{ width: 300 }}>
+            <Tabs.Root defaultValue="mark">
+              <Tabs.List
+                style={{ display: "flex", justifyContent: "space-around" }}
+              >
+                <Tabs.Trigger style={{ width: "25%" }} value="mark">
+                  Mark
+                </Tabs.Trigger>
+                <Tabs.Trigger style={{ width: "25%" }} value="vag">
+                  Väg
+                </Tabs.Trigger>
+                <Tabs.Trigger style={{ width: "25%" }} value="granser">
+                  Gränser
+                </Tabs.Trigger>
+                <Tabs.Trigger style={{ width: "25%" }} value="terrang">
+                  Terräng
+                </Tabs.Trigger>
+              </Tabs.List>
+              <Tabs.Content value="mark">
+                <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
+                  <Box style={{ padding: "0 10px" }}>{groundList}</Box>
+                </ScrollArea>
+              </Tabs.Content>
+              <Tabs.Content value="vag">
+                <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
+                  <Box style={{ padding: "0 10px" }}>{communicationList}</Box>
+                </ScrollArea>
+              </Tabs.Content>
+              <Tabs.Content value="granser"></Tabs.Content>
+              <Tabs.Content value="terrang"></Tabs.Content>
+            </Tabs.Root>
+          </Popover.Content>
+        </Popover.Root>
+        <Popover.Root>
+          <Popover.Trigger>
+            <Button size="3" variant="surface">
+              <LayersIcon />
+            </Button>
+          </Popover.Trigger>
+          <Popover.Content style={{ width: 250 }}>
+            <Tabs.Root defaultValue="vader">
+              <Tabs.List
+                style={{ display: "flex", justifyContent: "space-around" }}
+              >
+                <Tabs.Trigger style={{ width: "50%" }} value="vader">
+                  Väder
+                </Tabs.Trigger>
+                <Tabs.Trigger style={{ width: "50%" }} value="vatten">
+                  Vatten
+                </Tabs.Trigger>
+              </Tabs.List>
+              <Tabs.Content value="vader">
+                <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
+                  <Box style={{ padding: "0 10px" }}>{}</Box>
+                </ScrollArea>
+              </Tabs.Content>
+              <Tabs.Content value="vatten">
+                <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
+                  <Box style={{ padding: "0 10px" }}>{}</Box>
+                </ScrollArea>
+              </Tabs.Content>
+            </Tabs.Root>
+          </Popover.Content>
+        </Popover.Root>
+      </Flex>
+    </Theme>
   );
 }
