@@ -2,6 +2,7 @@ import { createRoot } from "react-dom/client";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 import DeckGL from "@deck.gl/react/typed";
 import { MapView } from "@deck.gl/core/typed";
+import { LinearInterpolator } from "@deck.gl/core";
 import { useMenuStore } from "./Store";
 import { mapElements } from "./config.tsx";
 
@@ -67,7 +68,6 @@ export function App() {
           } else {
             let color = ground[f.properties.objekttyp].color;
             color[3] = Math.pow(zoom, 2);
-            console.log(color);
             return color;
           }
         },
@@ -194,7 +194,6 @@ export function App() {
         setZoom(viewState.zoom);
         return {
           ...viewState,
-          zoom: Math.max(viewState.zoom, 3),
         };
       }}
     ></DeckGL>

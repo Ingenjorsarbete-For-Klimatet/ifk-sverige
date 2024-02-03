@@ -119,7 +119,7 @@ export function Header() {
     <Theme
       accentColor="gray"
       grayColor="mauve"
-      panelBackground="translucent"
+      panelBackground="solid"
       scaling="100%"
       radius="medium"
       appearance={theme}
@@ -128,7 +128,7 @@ export function Header() {
         <AsyncSelect
           classNames={{
             control: () =>
-              "rt-reset rt-BaseButton rt-Button rt-r-size-3 rt-variant-surface",
+              "rt-reset rt-BaseButton rt-Button rt-r-size-3 rt-variant-solid",
             menuList: () => "rt-ScrollAreaRoot",
           }}
           styles={{
@@ -138,11 +138,19 @@ export function Header() {
               paddingRight: 0,
               width: "250px",
               color: "var(--accent-a11)",
-              backgroundColor: "var(--color-surface-accent)",
+              backgroundColor: "var(--color-panel-solid)",
             }),
             menuList: (baseStyles, _) => ({
               ...baseStyles,
               backgroundColor: "var(--color-panel-solid)",
+            }),
+            input: (baseStyles, _) => ({
+              ...baseStyles,
+              color: "var(--accent-a11)",
+            }),
+            singleValue: (baseStyles, _) => ({
+              ...baseStyles,
+              color: "var(--accent-a11)",
             }),
           }}
           theme={(theme) => ({
