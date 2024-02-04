@@ -22,7 +22,7 @@ export function Footer() {
         <Popover.Root>
           <Popover.Trigger>
             <Button size="3" variant="surface">
-              <InfoCircledIcon />
+              <span className="material-symbols-outlined">info</span>
             </Button>
           </Popover.Trigger>
           <Popover.Content>
@@ -32,7 +32,7 @@ export function Footer() {
         <Popover.Root>
           <Popover.Trigger>
             <Button size="3" variant="surface">
-              <EnvelopeClosedIcon />
+              <span className="material-symbols-outlined">mail</span>
             </Button>
           </Popover.Trigger>
           <Popover.Content>

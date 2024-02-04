@@ -102,7 +102,9 @@ export function Header() {
   // @ts-ignore
   const searchResult = useMenuStore((state: any) => state.searchResult);
   // @ts-ignore
-  const setSearchResult = useMenuStore((state: any) => state.setSearchResult);
+  const searchFlyFunction = useMenuStore(
+    (state: any) => state.searchFlyFunction,
+  );
   // @ts-ignore
   const [initialViewState, setInitialViewState] = useState({
     latitude: 62.5,
@@ -172,12 +174,17 @@ export function Header() {
           cacheOptions
           defaultOptions={defaultSearchOptions}
           loadOptions={loadOptions}
-          onChange={(e) => setSearchResult(e, setInitialViewState)}
+          onChange={(e) => {
+            searchFlyFunction.current?.flyTo({
+              center: e.geometry_xy,
+              zoom: 10,
+            });
+          }}
         />
         <Popover.Root>
           <Popover.Trigger>
             <Button size="3" variant="surface">
-              <GlobeIcon />
+              <span className="material-symbols-outlined">map</span>
             </Button>
           </Popover.Trigger>
           <Popover.Content style={{ width: 300 }}>
@@ -216,7 +223,7 @@ export function Header() {
         <Popover.Root>
           <Popover.Trigger>
             <Button size="3" variant="surface">
-              <LayersIcon />
+              <span className="material-symbols-outlined">layers</span>
             </Button>
           </Popover.Trigger>
           <Popover.Content style={{ width: 250 }}>

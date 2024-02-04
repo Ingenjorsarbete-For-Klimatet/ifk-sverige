@@ -2,8 +2,7 @@ import { renderToDOM, App } from "./App.tsx";
 import { Header } from "./Header.tsx";
 import { Footer } from "./Footer.tsx";
 
-import "@radix-ui/themes/styles.css";
-import "./App.module.css";
+import "./styles.css";
 
 renderToDOM(
   document.getElementById("root"),

@@ -1,14 +1,10 @@
-@value colors: "./colors.module.css";
-@value water from colors;
+@import "@radix-ui/themes/styles.css";
+@import "colors.module.css";
 
 :root {
   font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
   line-height: 1.5;
   font-weight: 400;
-
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: water;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
@@ -17,8 +13,16 @@
   -webkit-text-size-adjust: 100%;
 }
 
-body {
-  background-color: water !important;
+:root.light-theme {
+  color-scheme: light;
+  background-color: var(--color-water);
+  --color-page-background: var(--color-water);
+}
+
+:root.dark-theme {
+  color-scheme: dark;
+  background-color: var(--color-dark-water);
+  --color-page-background: var(--color-dark-water);
 }
 
 a {
@@ -37,7 +41,7 @@ body {
   place-items: center;
   min-width: 320px;
   min-height: 100vh;
-  background-color: water;
+  background-color: unset !important;
 }
 
 h1 {
@@ -67,13 +71,10 @@ footer {
   right: 30px;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: water;
-  }
-
-  a:hover {
-    color: #747bff;
-  }
+.material-symbols-outlined {
+  font-variation-settings:
+    "FILL" 0,
+    "wght" 400,
+    "GRAD" 0,
+    "opsz" 24;
 }
