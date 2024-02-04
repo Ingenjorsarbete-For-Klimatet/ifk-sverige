@@ -8,10 +8,6 @@ export const useMenuStore = create((set) => ({
   layer: structuredClone(mapElements),
   searchResult: {},
   searchView: {},
-  searchFlyFunction: () => {},
-  setSearchFlyFunction: (fun: any) => {
-    set(() => ({ searchFlyFunction: fun }));
-  },
   setZoom: (zoom: number) => {
     set(() => ({ zoom: zoom }));
   },

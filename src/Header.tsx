@@ -9,7 +9,6 @@ import {
   ScrollArea,
   Switch,
 } from "@radix-ui/themes";
-import { GlobeIcon, LayersIcon } from "@radix-ui/react-icons";
 import AsyncSelect from "react-select/async";
 import { mapElements } from "./config";
 import { useMenuStore } from "./Store";
@@ -102,9 +101,7 @@ export function Header() {
   // @ts-ignore
   const searchResult = useMenuStore((state: any) => state.searchResult);
   // @ts-ignore
-  const searchFlyFunction = useMenuStore(
-    (state: any) => state.searchFlyFunction,
-  );
+  const setSearchResult = useMenuStore((state: any) => state.setSearchResult);
   // @ts-ignore
   const [initialViewState, setInitialViewState] = useState({
     latitude: 62.5,
@@ -174,12 +171,7 @@ export function Header() {
           cacheOptions
           defaultOptions={defaultSearchOptions}
           loadOptions={loadOptions}
-          onChange={(e) => {
-            searchFlyFunction.current?.flyTo({
-              center: e.geometry_xy,
-              zoom: 10,
-            });
-          }}
+          onChange={(e) => setSearchResult(e, setInitialViewState)}
         />
         <Popover.Root>
           <Popover.Trigger>

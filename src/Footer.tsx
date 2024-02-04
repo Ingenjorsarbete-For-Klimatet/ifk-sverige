@@ -1,5 +1,4 @@
 import { Button, Flex, Popover } from "@radix-ui/themes";
-import { InfoCircledIcon, EnvelopeClosedIcon } from "@radix-ui/react-icons";
 
 import { ThemeButton } from "./Theme";
 import { useMenuStore } from "./Store";
