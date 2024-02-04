@@ -124,6 +124,18 @@ export function App() {
     });
 
     layers.push({
+      id: "terrain",
+      source: "terrain",
+      type: "hillshade",
+      paint: {
+        "hillshade-exaggeration": 0.1,
+      },
+      layout: {
+        visibility: "none",
+      },
+    });
+
+    layers.push({
       id: "text",
       source: "text",
       "source-layer": "sweden_text",
@@ -183,10 +195,10 @@ export function App() {
               tileSize: 512,
             },
           },
-          terrain: {
-            source: "terrain",
-            exaggeration: 0.001,
-          },
+          // terrain: {
+          //   source: "terrain",
+          //   exaggeration: 0.001,
+          // },
           // @ts-ignore
           layers: layers,
         }}
