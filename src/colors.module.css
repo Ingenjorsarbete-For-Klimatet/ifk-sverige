@@ -1,0 +1,141 @@
+@value ground: hsla(144, 35.71%, 72.55%, 1);
+@value water: hsla(196, 83.3%, 92.9%, 1);
+@value city-dense: hsla(0, 0%, 82.35%, 1);
+@value city-sparse: hsla(0, 0%, 86.27%, 1);
+@value city-closed: hsla(0, 0%, 90.2%, 1);
+@value city-industry: hsla(0, 0%, 94.12%, 1);
+@value open-ground: hsla(29.17, 30.25%, 46.67%, 1);
+@value coniferous-forest: hsla(138.81, 30.04%, 56.27%, 1);
+@value leaf-fores: hsla(112.94, 39.53%, 25.29%, 1);
+@value fruit-farm: hsla(3.16, 61.79%, 48.24%, 1);
+@value field: hsla(39.09, 76.74%, 83.14%, 1);
+@value mountain-birch: hsla(76.7, 62.58%, 30.39%, 1);
+@value glacier: hsla(184.55, 100%, 28.43%, 1);
+@value open-mountain: hsla(164.8, 40.54%, 63.73%, 1);
+
+@value residence-building: hsla(0, 0%, 11.76%, 1);
+@value economy-building: hsla(0, 0%, 11.76%, 1);
+@value industry-building: hsla(0, 0%, 11.76%, 1);
+@value complement-building: hsla(0, 0%, 11.76%, 1);
+@value community-building: hsla(0, 0%, 11.76%, 1);
+@value operation-building: hsla(0, 0%, 11.76%, 1);
+@value other-building: hsla(0, 0%, 11.76%, 1);
+
+@value motorway: hsla(0, 0%, 100%, 1);
+@value motor-trafic-route: hsla(0, 0%, 100%, 1);
+@value overall-link: hsla(0, 0%, 100%, 1);
+@value country-road: hsla(0, 0%, 100%, 1);
+@value country-road-small: hsla(0, 0%, 100%, 1);
+@value main-street: hsla(0, 0%, 100%, 1);
+@value local-street-large: hsla(0, 0%, 100%, 1);
+@value local-street-small: hsla(0, 0%, 100%, 1);
+@value meeting-free-road: hsla(0, 0%, 100%, 1);
+@value small-road: hsla(0, 0%, 100%, 1);
+@value small-road-simple: hsla(0, 0%, 100%, 1);
+
+@value dark-ground: hsla(144, 35.71%, 12.55%, 1);
+@value dark-water: hsla(196, 83.3%, 12.9%, 1);
+@value dark-city-dense: hsla(0, 0%, 12.35%, 1);
+@value dark-city-sparse: hsla(0, 0%, 16.27%, 1);
+@value dark-city-closed: hsla(0, 0%, 10.2%, 1);
+@value dark-city-industry: hsla(0, 0%, 14.12%, 1);
+@value dark-open-ground: hsla(29.17, 30.25%, 6.67%, 1);
+@value dark-coniferous-forest: hsla(138.81, 30.04%, 6.27%, 1);
+@value dark-leaf-fores: hsla(112.94, 39.53%, 5.29%, 1);
+@value dark-fruit-farm: hsla(3.16, 61.79%, 8.24%, 1);
+@value dark-field: hsla(39.09, 76.74%, 3.14%, 1);
+@value dark-mountain-birch: hsla(76.7, 62.58%, 0.39%, 1);
+@value dark-glacier: hsla(184.55, 100%, 8.43%, 1);
+@value dark-open-mountain: hsla(164.8, 40.54%, 3.73%, 1);
+
+@value dark-residence-building: hsla(10, 10%, 81.76%, 1);
+@value dark-economy-building: hsla(10, 10%, 81.76%, 1);
+@value dark-industry-building: hsla(10, 10%, 81.76%, 1);
+@value dark-complement-building: hsla(10, 10%, 81.76%, 1);
+@value dark-community-building: hsla(10, 10%, 81.76%, 1);
+@value dark-operation-building: hsla(10, 10%, 81.76%, 1);
+@value dark-other-building: hsla(10, 10%, 81.76%, 1);
+
+@value dark-motorway: hsla(0, 0%, 10%, 1);
+@value dark-motor-trafic-route: hsla(0, 0%, 10%, 1);
+@value dark-overall-link: hsla(0, 0%, 10%, 1);
+@value dark-country-road: hsla(0, 0%, 10%, 1);
+@value dark-country-road-small: hsla(0, 0%, 10%, 1);
+@value dark-main-street: hsla(0, 0%, 10%, 1);
+@value dark-local-street-large: hsla(0, 0%, 10%, 1);
+@value dark-local-street-small: hsla(0, 0%, 10%, 1);
+@value dark-meeting-free-road: hsla(0, 0%, 10%, 1);
+@value dark-small-road: hsla(0, 0%, 10%, 1);
+@value dark-small-road-simple: hsla(0, 0%, 10%, 1);
+
+:root {
+  --color-ground: hsla(144, 35.71%, 72.55%, 1);
+  --color-water: hsla(196, 83.3%, 92.9%, 1);
+  --color-city-dense: hsla(0, 0%, 82.35%, 1);
+  --color-city-sparse: hsla(0, 0%, 86.27%, 1);
+  --color-city-closed: hsla(0, 0%, 90.2%, 1);
+  --color-city-industry: hsla(0, 0%, 94.12%, 1);
+  --color-open-ground: hsla(29.17, 30.25%, 46.67%, 1);
+  --color-coniferous-forest: hsla(138.81, 30.04%, 56.27%, 1);
+  --color-leaf-fores: hsla(112.94, 39.53%, 25.29%, 1);
+  --color-fruit-farm: hsla(3.16, 61.79%, 48.24%, 1);
+  --color-field: hsla(39.09, 76.74%, 83.14%, 1);
+  --color-mountain-birch: hsla(76.7, 62.58%, 30.39, 1);
+  --color-glacier: hsla(184.55, 100%, 28.43%, 1);
+  --color-open-mountain: hsla(164.8, 40.54%, 63.73%, 1);
+
+  --color-residence-building: hsla(0, 0%, 11.76%, 1);
+  --color-economy-building: hsla(0, 0%, 11.76%, 1);
+  --color-industry-building: hsla(0, 0%, 11.76%, 1);
+  --color-complement-building: hsla(0, 0%, 11.76%, 1);
+  --color-community-building: hsla(0, 0%, 11.76%, 1);
+  --color-operation-building: hsla(0, 0%, 11.76%, 1);
+  --color-other-building: hsla(0, 0%, 11.76%, 1);
+
+  --color-motorway: hsla(0, 0%, 100%, 1);
+  --color-motor-trafic-route: hsla(0, 0%, 100%, 1);
+  --color-overall-link: hsla(0, 0%, 100%, 1);
+  --color-country-road: hsla(0, 0%, 100%, 1);
+  --color-country-road-small: hsla(0, 0%, 100%, 1);
+  --color-main-street: hsla(0, 0%, 100%, 1);
+  --color-local-street-large: hsla(0, 0%, 100%, 1);
+  --color-local-street-small: hsla(0, 0%, 100%, 1);
+  --color-meeting-free-road: hsla(0, 0%, 100%, 1);
+  --color-small-road: hsla(0, 0%, 100%, 1);
+  --color-small-road-simple: hsla(0, 0%, 100%, 1);
+
+  --color-dark-ground: hsla(144, 35.71%, 12.55%, 1);
+  --color-dark-water: hsla(196, 83.3%, 12.9%, 1);
+  --color-dark-city-dense: hsla(0, 0%, 12.35%, 1);
+  --color-dark-city-sparse: hsla(0, 0%, 16.27%, 1);
+  --color-dark-city-closed: hsla(0, 0%, 10.2%, 1);
+  --color-dark-city-industry: hsla(0, 0%, 14.12%, 1);
+  --color-dark-open-ground: hsla(29.17, 30.25%, 6.67%, 1);
+  --color-dark-coniferous-forest: hsla(138.81, 30.04%, 6.27%, 1);
+  --color-dark-leaf-fores: hsla(112.94, 39.53%, 5.29%, 1);
+  --color-dark-fruit-farm: hsla(3.16, 61.79%, 8.24%, 1);
+  --color-dark-field: hsla(39.09, 76.74%, 3.14%, 1);
+  --color-dark-mountain-birch: hsla(76.7, 62.58%, 0.39, 1);
+  --color-dark-glacier: hsla(184.55, 100%, 8.43%, 1);
+  --color-dark-open-mountain: hsla(164.8, 40.54%, 3.73%, 1);
+
+  --color-dark-residence-building: hsla(10, 10%, 81.76%, 1);
+  --color-dark-economy-building: hsla(10, 10%, 81.76%, 1);
+  --color-dark-industry-building: hsla(10, 10%, 81.76%, 1);
+  --color-dark-complement-building: hsla(10, 10%, 81.76%, 1);
+  --color-dark-community-building: hsla(10, 10%, 81.76%, 1);
+  --color-dark-operation-building: hsla(10, 10%, 81.76%, 1);
+  --color-dark-other-building: hsla(10, 10%, 81.76%, 1);
+
+  --color-dark-motorway: hsla(0, 0%, 10%, 1);
+  --color-dark-motor-trafic-route: hsla(0, 0%, 10%, 1);
+  --color-dark-overall-link: hsla(0, 0%, 10%, 1);
+  --color-dark-country-road: hsla(0, 0%, 10%, 1);
+  --color-dark-country-road-small: hsla(0, 0%, 10%, 1);
+  --color-dark-main-street: hsla(0, 0%, 10%, 1);
+  --color-dark-local-street-large: hsla(0, 0%, 10%, 1);
+  --color-dark-local-street-small: hsla(0, 0%, 10%, 1);
+  --color-dark-meeting-free-road: hsla(0, 0%, 10%, 1);
+  --color-dark-small-road: hsla(0, 0%, 10%, 1);
+  --color-dark-small-road-simple: hsla(0, 0%, 10%, 1);
+}

@@ -1,17 +1,11 @@
 import { createRoot } from "react-dom/client";
-import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
-import DeckGL from "@deck.gl/react/typed";
-import { MapView } from "@deck.gl/core/typed";
-import { useMenuStore, buildLayerStore } from "./Menu.tsx";
-import { STROKED, COLOR } from "./config.tsx";
+import { useEffect } from "react";
+import DeckGL from "deck.gl/typed";
+import { Map, MapProvider } from "react-map-gl";
+import maplibregl from "maplibre-gl";
+import { Protocol } from "pmtiles";
 
-function getTooltip({ tile }: any) {
-  if (tile) {
-    const { x, y, z } = tile.index;
-    return `tile: x: ${x}, y: ${y}, z: ${z}`;
-  }
-  return null;
-}
+import { useMenuStore } from "./Store";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -19,11 +13,11 @@ const INITIAL_VIEW_STATE = {
   zoom: 4,
   minZoom: 4,
   maxZoom: 14,
-  maxPitch: 0,
-  bearing: 0,
 };
 
 export function App() {
+  const zoom = useMenuStore((state: any) => state.zoom);
+  const setZoom = useMenuStore((state: any) => state.setZoom);
   const searchView = useMenuStore((state: any) => {
     if (state.searchView.zoom) {
       return state.searchView;
@@ -32,120 +26,189 @@ export function App() {
     }
   });
 
+  useEffect(() => {
+    let protocol: any = new Protocol();
+    maplibregl.addProtocol("pmtiles", protocol.tile);
+    return () => {
+      maplibregl.removeProtocol("pmtiles");
+    };
+  }, []);
+
   const layers = useMenuStore((state: any) => {
-    const ground = Object.entries(state.layer["ground"])
-      .filter(([_, value]) => value == true)
-      .map(([key, _]) => key);
+    let layers: any = [];
 
-    const road = Object.entries(state.layer["road"])
-      .filter(([_, value]) => value == true)
-      .map(([key, _]) => key);
+    for (const p in state.layer) {
+      if (state.layer[p].type == "ground" && state.layer[p].checked == true) {
+        let opacity = 1;
+        if (
+          p == "Sverige" ||
+          p == "Sjö" ||
+          p == "Anlagt vatten" ||
+          p == "Vattendragsyta"
+        ) {
+          opacity = 1;
+        } else if (p == "Kalfjäll" || p == "Fjällbjörkskog") {
+          opacity = Math.pow(zoom, 2) / 50;
+        } else {
+          opacity = Math.pow(zoom, 2) / 150;
+        }
 
-    const construction = Object.entries(state.layer["construction"])
-      .filter(([_, value]) => value == true)
-      .map(([key, _]) => key);
+        opacity = opacity > 1 ? 1 : opacity;
 
-    let layers = [];
-
-    layers.push(
-      new PMTLayer({
-        id: "ground-layer",
-        data: "sweden_ground.pmtiles",
-        pickable: true,
-        // @ts-ignore
-        getFillColor: (f: any) => COLOR[f.properties.objekttyp],
-        stroked: true,
-        lineWidthMinPixels: (f: any) => STROKED[f.properties.objekttyp],
-        getLineColor: [0, 0, 0, 20],
-        loadOptions: {
-          mvt: {
-            layers: ground,
+        layers.push({
+          id: p,
+          source: "ground",
+          "source-layer": state.layer[p].name,
+          type: "fill",
+          paint: {
+            "fill-color":
+              state.theme == "light"
+                ? state.layer[p].color
+                : state.layer[p].dark_color,
+            "fill-opacity": opacity,
           },
-        },
-      }),
-    );
+        });
+      }
 
-    layers.push(
-      new PMTLayer({
-        id: "road-layer",
-        data: "sweden_road.pmtiles",
-        // @ts-ignore
-        pointType: "text",
-        // @ts-ignore
-        getLineColor: (f: any) => {
-          //console.log(f)
-          //console.log(f.properties.vardvagnummer)
-          return COLOR[f.properties.objekttyp];
-        },
-        getText: (f: any) => {
-          //console.log(f)
-          return f.properties.vardvagnummer;
-        },
-        stroked: true,
-        strokeColor: [255, 0, 0],
-        strokeWeight: 2,
-        lineWidthMinPixels: 2,
-        loadOptions: {
-          mvt: {
-            layers: road,
+      if (
+        state.layer[p].type == "communication" &&
+        state.layer[p].checked == true
+      ) {
+        let line_width = 2;
+        let line_blur = 1;
+        let line_gap_width = 0;
+
+        if (zoom >= 8 && (p == "Motorväg" || p == "Motortrafikled")) {
+          line_width = 4;
+          line_blur = 1;
+        }
+
+        if (zoom >= 12 && (p == "Motorväg" || p == "Motortrafikled")) {
+          line_gap_width = 1;
+        }
+
+        layers.push({
+          id: `${p}_outline`,
+          source: "connection",
+          "source-layer": state.layer[p].name,
+          type: "line",
+          paint: {
+            "line-color": state.theme == "light" ? "#000" : "#fff",
+            "line-width": line_width + 1,
+            "line-blur": line_blur,
+            "line-gap-width": line_gap_width,
           },
-        },
-        getTextSize: 12,
-        textCharacterSet: "auto",
-        textFontFamily: "Helvetica",
-        getTextColor: [0, 0, 0],
-        textOutlineColor: [255, 255, 255, 200],
-        textOutlineWidth: 1,
-        textFontSettings: { sdf: true },
-      }),
-    );
-
-    layers.push(
-      new PMTLayer({
-        id: "building-layer",
-        data: "sweden_building.pmtiles",
-        // @ts-ignore
-        getFillColor: [(f: any) => COLOR[f.properties.objekttyp]],
-        stroked: false,
-        lineWidthMinPixels: 1,
-        getLineColor: [0, 0, 0, 20],
-        loadOptions: {
-          mvt: {
-            layers: ["100_bygg"],
+        });
+        layers.push({
+          id: p,
+          source: "connection",
+          "source-layer": state.layer[p].name,
+          type: "line",
+          paint: {
+            "line-color":
+              state.theme == "light"
+                ? state.layer[p].color
+                : state.layer[p].dark_color,
+            "line-width": line_width,
+            "line-gap-width": line_gap_width,
           },
-        },
-      }),
-    );
+        });
+      }
+    }
 
-    layers.push(
-      new PMTLayer({
-        id: "text-layer",
-        data: "sweden_text.pmtiles",
-        // @ts-ignore
-        pointType: "text",
-        // @ts-ignore
-        getText: (f) => f.properties.textstrang,
-        getTextSize: 12,
-        textCharacterSet: "auto",
-        textFontFamily: "Helvetica",
-        getTextColor: [0, 0, 0],
-        textOutlineColor: [255, 255, 255, 200],
-        textOutlineWidth: 1,
-        textFontSettings: { sdf: true },
-      }),
-    );
+    layers.push({
+      id: "bygg",
+      source: "construction",
+      "source-layer": "100_bygg",
+      type: "fill",
+      paint: {
+        "fill-color": "#000000",
+      },
+    });
+
+    // layers.push({
+    //   id: "terrain",
+    //   source: "terrain",
+    //   type: "hillshade",
+    //   paint: {
+    //     "hillshade-exaggeration": 1,
+    //   },
+    //   layout: {
+    //     visibility: "visible",
+    //   },
+    // });
+
+    layers.push({
+      id: "text",
+      source: "text",
+      "source-layer": "sweden_text",
+      type: "symbol",
+      paint: {
+        "text-color": state.theme == "light" ? "#000000" : "#ffffff",
+        "text-halo-color": state.theme == "light" ? "#ffffff" : "#000000",
+        "text-halo-width": 1,
+      },
+      layout: {
+        "text-field": ["get", "textstrang"],
+        "text-radial-offset": 0.5,
+        "text-size": 12,
+      },
+    });
 
     return layers;
   });
 
   return (
     <DeckGL
-      layers={layers}
-      views={new MapView({ repeat: false })}
       initialViewState={searchView}
-      controller={true}
-      getTooltip={getTooltip}
-    ></DeckGL>
+      controller={{ inertia: 300, scrollZoom: { speed: 1, smooth: true } }}
+      ContextProvider={MapProvider}
+      onViewStateChange={({ viewState }) => {
+        setZoom(viewState.zoom);
+        return {
+          ...viewState,
+        };
+      }}
+    >
+      <Map
+        style={{ width: "100vw", height: "100vh", margin: "0 auto" }}
+        mapStyle={{
+          version: 8,
+          glyphs: "https://demotiles.maplibre.org/font/{fontstack}/{range}.pbf",
+          sources: {
+            ground: {
+              type: "vector",
+              url: "pmtiles://sweden_ground.pmtiles",
+            },
+            connection: {
+              type: "vector",
+              url: "pmtiles://sweden_road.pmtiles",
+            },
+            construction: {
+              type: "vector",
+              url: "pmtiles://sweden_building.pmtiles",
+            },
+            text: {
+              type: "vector",
+              url: "pmtiles://sweden_text.pmtiles",
+            },
+            // terrain: {
+            //   type: "raster-dem",
+            //   url: "pmtiles://output.pmtiles",
+            //   tileSize: 512,
+            // },
+          },
+          // terrain: {
+          //   source: "terrain",
+          //   exaggeration: 2,
+          // },
+          // @ts-ignore
+          layers: layers,
+        }}
+        // @ts-ignore
+        mapLib={maplibregl}
+      />
+    </DeckGL>
   );
 }
 
