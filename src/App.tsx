@@ -74,14 +74,17 @@ export function App() {
         state.layer[p].type == "communication" &&
         state.layer[p].checked == true
       ) {
-        let line_width = 1;
+        let line_width = 2;
         let line_blur = 1;
         let line_gap_width = 0;
 
         if (zoom >= 8 && (p == "Motorväg" || p == "Motortrafikled")) {
-          line_width = 2;
+          line_width = 4;
           line_blur = 1;
-          line_gap_width = 0;
+        }
+
+        if (zoom >= 12 && (p == "Motorväg" || p == "Motortrafikled")) {
+          line_gap_width = 1;
         }
 
         layers.push({
@@ -91,7 +94,7 @@ export function App() {
           type: "line",
           paint: {
             "line-color": state.theme == "light" ? "#000" : "#fff",
-            "line-width": line_width,
+            "line-width": line_width + 1,
             "line-blur": line_blur,
             "line-gap-width": line_gap_width,
           },
@@ -123,17 +126,17 @@ export function App() {
       },
     });
 
-    layers.push({
-      id: "terrain",
-      source: "terrain",
-      type: "hillshade",
-      paint: {
-        "hillshade-exaggeration": 0.1,
-      },
-      layout: {
-        visibility: "none",
-      },
-    });
+    // layers.push({
+    //   id: "terrain",
+    //   source: "terrain",
+    //   type: "hillshade",
+    //   paint: {
+    //     "hillshade-exaggeration": 1,
+    //   },
+    //   layout: {
+    //     visibility: "visible",
+    //   },
+    // });
 
     layers.push({
       id: "text",
@@ -189,15 +192,15 @@ export function App() {
               type: "vector",
               url: "pmtiles://sweden_text.pmtiles",
             },
-            terrain: {
-              type: "raster-dem",
-              url: "pmtiles://output.pmtiles",
-              tileSize: 512,
-            },
+            // terrain: {
+            //   type: "raster-dem",
+            //   url: "pmtiles://output.pmtiles",
+            //   tileSize: 512,
+            // },
           },
           // terrain: {
           //   source: "terrain",
-          //   exaggeration: 0.001,
+          //   exaggeration: 2,
           // },
           // @ts-ignore
           layers: layers,
