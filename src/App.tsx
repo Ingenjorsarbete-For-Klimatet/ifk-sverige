@@ -7,10 +7,10 @@ import { Protocol } from "pmtiles";
 import { ScatterplotLayer, GeoJsonLayer } from "@deck.gl/layers";
 import { interpolateYlOrRd } from "d3-scale-chromatic";
 import { color } from "d3-color";
-import DelaunayLayer from "./delaunay.tsx";
+import { DelaunayLayer, MyCompositeLayer } from "./delaunay.tsx";
 import { useMenuStore } from "./Store";
-
-import { DataFilterExtension } from "@deck.gl/extensions";
+import { MVTLayer } from "@deck.gl/geo-layers";
+import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -31,36 +31,36 @@ export function App() {
     }
   });
 
-  const step = 1;
-  const loopLength = 2500;
-  const [time, setTime] = useState(0);
-  const [z, setZ] = useState(0);
-  const [animation] = useState({});
-  const animate = () => {
-    setTime((t) => (t + step) % loopLength);
-    if (z > 13) {
-      setZ(0);
-    }
-    setZ((t) => t + 1);
-    setTimeout(() => {
-      animation.id = window.requestAnimationFrame(animate); // draw next frame
-    }, 100);
-  };
-  useEffect(() => {
-    if (!true) {
-      window.cancelAnimationFrame(animation.id);
-      return;
-    }
+  // const step = 1;
+  // const loopLength = 2500;
+  // const [time, setTime] = useState(0);
+  // const [z, setZ] = useState(0);
+  // const [animation] = useState({});
+  // const animate = () => {
+  //   setTime((t) => (t + step) % loopLength);
+  //   if (z > 13) {
+  //     setZ(0);
+  //   }
+  //   setZ((t) => t + 1);
+  //   setTimeout(() => {
+  //     animation.id = window.requestAnimationFrame(animate); // draw next frame
+  //   }, 100);
+  // };
+  // useEffect(() => {
+  //   if (!true) {
+  //     window.cancelAnimationFrame(animation.id);
+  //     return;
+  //   }
 
-    animation.id = window.requestAnimationFrame(animate); // start animation
-    return () => window.cancelAnimationFrame(animation.id);
-  }, [true]);
+  //   animation.id = window.requestAnimationFrame(animate); // start animation
+  //   return () => window.cancelAnimationFrame(animation.id);
+  // }, [true]);
 
-  if (z > 12) {
-    setZ(0);
-  }
+  // if (z > 12) {
+  //   setZ(0);
+  // }
 
-  console.log(z);
+  // console.log(z);
 
   useEffect(() => {
     let protocol: any = new Protocol();
@@ -200,24 +200,55 @@ export function App() {
   }
 
   const lays = [
-    // @ts-ignore
-    new DelaunayLayer({
-      data: "file_2.json",
-      id: "c",
-      getPosition: (d) => d.c,
-      getValue: (d) => {
-        return d.t[z];
-      },
-      colorScale: (x) => {
-        return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
-      },
-      updateTriggers: {
-        getValue: { z },
-      },
-      transitions: {
-        getValue: "interpolation",
-      },
+    // new PMTLayer({
+    //   data: "file_2.pmtiles",
+    //   id: "c",
+    //   renderSubLayers: (props) => {
+    //     return (
+    //     // @ts-ignore
+    //     new DelaunayLayer({
+    //       ...props,
+    //       id: "c",
+    //       getPosition: (d) => d.c,
+    //       getValue: (d) => {
+    //         return d.t[z];
+    //       },
+    //       colorScale: (x) => {
+    //         return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
+    //       }
+    //     })
+    //     )
+    //   }
+    // }),
+
+    new MyCompositeLayer({
+      id: "f",
+      data: "file_2.pmtiles",
     }),
+
+    // // @ts-ignore
+    // new DelaunayLayer({
+    //   id: "c",
+    //   data: "file_2.pmtiles",
+    //   getPosition: (d) => d.c,
+    //   getValue: (d) => {
+    //     return d.d;
+    //   },
+    //   colorScale: (x) => {
+    //     return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
+    //   }
+    // }),
+
+    // new MVTLayer({
+    //   data: `file_2/{z}/{x}/{y}.pbf`,
+
+    //   minZoom: 0,
+    //   maxZoom: 23,
+    //   getFillColor: f => {
+    //     console.log(f)
+    //     return [100, 100, 100]
+    //   },
+    // })
 
     // new ScatterplotLayer({
     //   data: "file_2.json",
@@ -258,7 +289,7 @@ export function App() {
     <DeckGL
       initialViewState={searchView}
       layers={lays}
-      controller={{ inertia: 300, scrollZoom: { speed: 1, smooth: true } }}
+      controller={{ inertia: 300, scrollZoom: { speed: 0.1, smooth: true } }}
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
         setZoom(viewState.zoom);

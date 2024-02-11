@@ -1,7 +1,11 @@
 import { Model } from "@luma.gl/core";
 import { Layer, project32, picking } from "@deck.gl/core";
+import { MVTLayer } from "@deck.gl/geo-layers";
 import { Delaunay } from "d3-delaunay";
 import GL from "@luma.gl/constants";
+import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
+
+import { AttributeManager } from "@deck.gl/core";
 
 const defaultProps = {
   getPosition: { type: "accessor", value: (d) => d.position },
@@ -51,7 +55,7 @@ void main(void) {
 }
 `;
 
-export default class DelaunayLayer extends Layer {
+export class DelaunayLayer extends PMTLayer {
   getShaders() {
     return super.getShaders({
       vs,
@@ -60,8 +64,22 @@ export default class DelaunayLayer extends Layer {
     });
   }
 
+  protected _getAttributeManager(): AttributeManager | null {
+    const context = this.context;
+    return new AttributeManager(context.device, {
+      id: this.props.id,
+      stats: context.stats,
+      timeline: context.timeline,
+    });
+  }
+
+  getAttributeManager(): AttributeManager | null {
+    return this._getAttributeManager();
+  }
+
   initializeState() {
     const attributeManager = this.getAttributeManager();
+    super.initializeState();
 
     attributeManager.remove(["instancePickingColors"]);
 
@@ -107,7 +125,7 @@ export default class DelaunayLayer extends Layer {
   updateState(params) {
     super.updateState(params);
 
-    const { changeFlags } = params;
+    const { props, oldProps, context, changeFlags } = params;
     if (changeFlags.extensionsChanged) {
       if (this.state.model) {
         this.state.model.delete();
@@ -121,8 +139,16 @@ export default class DelaunayLayer extends Layer {
       (changeFlags.updateTriggersChanged &&
         changeFlags.updateTriggersChanged.getValue)
     ) {
+      this._updateTileset();
       this.setState({ valueRange: this.getValueRange() });
     }
+
+    if (this.state?.data) {
+      super.updateState({ props, oldProps, context, changeFlags });
+      this._setWGS84PropertyForTiles();
+    }
+
+    console.log(this);
   }
 
   draw({ uniforms }) {
@@ -172,6 +198,7 @@ export default class DelaunayLayer extends Layer {
   }
 
   calculateIndices(attribute) {
+    console.log("1");
     const { data, getPosition } = this.props;
 
     const points = data.map(getPosition);
@@ -189,3 +216,58 @@ export default class DelaunayLayer extends Layer {
 
 DelaunayLayer.layerName = "DelaunayLayer";
 DelaunayLayer.defaultProps = defaultProps;
+
+import { DataFilterExtension } from "@deck.gl/extensions";
+
+import { PMTilesSource } from "@loaders.gl/pmtiles";
+import { load } from "@loaders.gl/core";
+
+const url = "http://localhost:5173/file_2.pmtiles";
+const source = new PMTilesSource({ url });
+const tile = await source.getTile({ layers: "file_2", zoom: 0, x: 0, y: 0 });
+const vtile = await source.getVectorTile({
+  layers: "file_2",
+  zoom: 0,
+  x: 0,
+  y: 0,
+});
+const h = await source.getMetadata();
+console.log(source);
+console.log(tile);
+console.log(vtile);
+console.log(h);
+
+import { CompositeLayer } from "deck.gl";
+
+export class MyCompositeLayer extends CompositeLayer {
+  initializeState() {}
+
+  updateState({ changeFlags }) {
+    const { data } = this.props;
+    const udata = data;
+    //console.log(data)
+    this.setState({ udata });
+  }
+
+  renderLayers() {
+    return [
+      new PMTLayer(this.props, this.getSubLayerProps({ id: "geojson" }), {
+        data: this.props.data,
+      }),
+      // @ts-ignore
+      new DelaunayLayer(this.getSubLayerProps({ id: "text" }), {
+        data: this.state.labelData,
+        getPosition: (d) => d.c,
+        getValue: (d) => {
+          return d.d;
+        },
+        colorScale: (x) => {
+          return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
+        },
+      }),
+    ];
+  }
+}
+
+MyCompositeLayer.layerName = "MyCompositeLayer";
+MyCompositeLayer.defaultProps = defaultProps;
