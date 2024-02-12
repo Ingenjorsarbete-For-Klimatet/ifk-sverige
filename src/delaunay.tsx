@@ -5,6 +5,8 @@ import { Delaunay } from "d3-delaunay";
 import GL from "@luma.gl/constants";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 
+import { PMTLoader } from "@mgcth/deck.gl-pmtiles";
+
 import { AttributeManager } from "@deck.gl/core";
 
 const defaultProps = {
@@ -55,7 +57,7 @@ void main(void) {
 }
 `;
 
-export class DelaunayLayer extends PMTLayer {
+export default class DelaunayLayer extends Layer {
   getShaders() {
     return super.getShaders({
       vs,
@@ -64,22 +66,8 @@ export class DelaunayLayer extends PMTLayer {
     });
   }
 
-  protected _getAttributeManager(): AttributeManager | null {
-    const context = this.context;
-    return new AttributeManager(context.device, {
-      id: this.props.id,
-      stats: context.stats,
-      timeline: context.timeline,
-    });
-  }
-
-  getAttributeManager(): AttributeManager | null {
-    return this._getAttributeManager();
-  }
-
   initializeState() {
     const attributeManager = this.getAttributeManager();
-    super.initializeState();
 
     attributeManager.remove(["instancePickingColors"]);
 
@@ -125,7 +113,7 @@ export class DelaunayLayer extends PMTLayer {
   updateState(params) {
     super.updateState(params);
 
-    const { props, oldProps, context, changeFlags } = params;
+    const { changeFlags } = params;
     if (changeFlags.extensionsChanged) {
       if (this.state.model) {
         this.state.model.delete();
@@ -139,16 +127,8 @@ export class DelaunayLayer extends PMTLayer {
       (changeFlags.updateTriggersChanged &&
         changeFlags.updateTriggersChanged.getValue)
     ) {
-      this._updateTileset();
       this.setState({ valueRange: this.getValueRange() });
     }
-
-    if (this.state?.data) {
-      super.updateState({ props, oldProps, context, changeFlags });
-      this._setWGS84PropertyForTiles();
-    }
-
-    console.log(this);
   }
 
   draw({ uniforms }) {
@@ -198,16 +178,11 @@ export class DelaunayLayer extends PMTLayer {
   }
 
   calculateIndices(attribute) {
-    console.log("1");
     const { data, getPosition } = this.props;
 
     const points = data.map(getPosition);
     const delaunay = Delaunay.from(points);
     const indices = delaunay.triangles;
-
-    //console.log(points)
-    //console.log(delaunay)
-    //console.log(indices)
 
     this.state.vertexCount = indices.length;
     attribute.value = new Uint32Array(indices);
@@ -217,57 +192,121 @@ export class DelaunayLayer extends PMTLayer {
 DelaunayLayer.layerName = "DelaunayLayer";
 DelaunayLayer.defaultProps = defaultProps;
 
-import { DataFilterExtension } from "@deck.gl/extensions";
+// import { DataFilterExtension } from "@deck.gl/extensions";
 
-import { PMTilesSource } from "@loaders.gl/pmtiles";
-import { load } from "@loaders.gl/core";
+// import { PMTilesSource } from "@loaders.gl/pmtiles";
+// import { load } from "@loaders.gl/core";
 
-const url = "http://localhost:5173/file_2.pmtiles";
-const source = new PMTilesSource({ url });
-const tile = await source.getTile({ layers: "file_2", zoom: 0, x: 0, y: 0 });
-const vtile = await source.getVectorTile({
-  layers: "file_2",
-  zoom: 0,
-  x: 0,
-  y: 0,
-});
-const h = await source.getMetadata();
-console.log(source);
-console.log(tile);
-console.log(vtile);
-console.log(h);
+// const url = "http://localhost:5173/file_2.pmtiles";
+// const source = new PMTilesSource({ url });
+// const tile = await source.getTile({ layers: "file_2", zoom: 0, x: 0, y: 0 });
+// const vtile = await source.getVectorTile({
+//   layers: "file_2",
+//   zoom: 0,
+//   x: 0,
+//   y: 0,
+// });
+// const h = await source.getMetadata();
+// console.log(source);
+// console.log(tile);
+// console.log(vtile);
+// console.log(h);
 
 import { CompositeLayer } from "deck.gl";
 
 export class MyCompositeLayer extends CompositeLayer {
-  initializeState() {}
-
   updateState({ changeFlags }) {
+    console.log(this);
     const { data } = this.props;
-    const udata = data;
-    //console.log(data)
-    this.setState({ udata });
+    console.log(data);
+    if (changeFlags.dataChanged && data) {
+      //console.log(data)
+      const udata = data;
+
+      //this.setState({udata});
+    }
   }
 
   renderLayers() {
+    //console.log(this.props)
     return [
       new PMTLayer(this.props, this.getSubLayerProps({ id: "geojson" }), {
         data: this.props.data,
       }),
-      // @ts-ignore
-      new DelaunayLayer(this.getSubLayerProps({ id: "text" }), {
-        data: this.state.labelData,
-        getPosition: (d) => d.c,
-        getValue: (d) => {
-          return d.d;
-        },
-        colorScale: (x) => {
-          return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
-        },
-      }),
+      // // @ts-ignore
+      // new DelaunayLayer(this.getSubLayerProps({ id: "text" }), {
+      //   data: this.state.labelData,
+      //   getPosition: (d) => d.c,
+      //   getValue: (d) => {
+      //     return d.d;
+      //   },
+      //   colorScale: (x) => {
+      //     return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
+      //   },
+      // }),
     ];
   }
 }
 
+import { type TileLayerProps } from "@deck.gl/geo-layers/typed";
+import { GeoJsonLayer, type GeoJsonLayerProps } from "@deck.gl/layers/typed";
+import { type DefaultProps } from "@deck.gl/core/typed";
+import type { Loader } from "@loaders.gl/loader-utils";
+
+export type TileJson = {
+  tilejson: string;
+  tiles: string[];
+  // eslint-disable-next-line camelcase
+  vector_layers: any[];
+  attribution?: string;
+  scheme?: string;
+  maxzoom?: number;
+  minzoom?: number;
+  version?: string;
+};
+export type _MVTLayerProps = {
+  /** Called if `data` is a TileJSON URL when it is successfully fetched. */
+  onDataLoad?: ((tilejson: TileJson | null) => void) | null;
+
+  /** Needed for highlighting a feature split across two or more tiles. */
+  uniqueIdProperty?: string;
+
+  /** A feature with ID corresponding to the supplied value will be highlighted. */
+  highlightedFeatureId?: string | null;
+
+  /**
+   * Use tile data in binary format.
+   *
+   * @default true
+   */
+  binary?: boolean;
+
+  /**
+   * Loaders used to transform tiles into `data` property passed to `renderSubLayers`.
+   *
+   * @default [MVTWorkerLoader] from `@loaders.gl/mvt`
+   */
+  loaders?: Loader[];
+};
+
+export type ParsedPmTile = Feature[] | BinaryFeatures;
+export type ExtraProps = {
+  raster?: boolean;
+};
+
+export type _PMTLayerProps = _MVTLayerProps & ExtraProps;
+export type PmtLayerProps = _PMTLayerProps & TileLayerProps<ParsedPmTile>;
+
+const defaultPropsMy: DefaultProps<PmtLayerProps> = {
+  ...GeoJsonLayer.defaultProps,
+  onDataLoad: { type: "function", value: null, optional: true, compare: false },
+  uniqueIdProperty: "",
+  highlightedFeatureId: null,
+  binary: true,
+  raster: false,
+  loaders: [PMTLoader],
+  loadOptions: { worker: false },
+};
+
 MyCompositeLayer.layerName = "MyCompositeLayer";
-MyCompositeLayer.defaultProps = defaultProps;
+MyCompositeLayer.defaultProps = defaultPropsMy;

@@ -7,10 +7,17 @@ import { Protocol } from "pmtiles";
 import { ScatterplotLayer, GeoJsonLayer } from "@deck.gl/layers";
 import { interpolateYlOrRd } from "d3-scale-chromatic";
 import { color } from "d3-color";
-import { DelaunayLayer, MyCompositeLayer } from "./delaunay.tsx";
+import { MyCompositeLayer } from "./delaunay.tsx";
+import DelaunayLayer from "./delaunay.tsx";
 import { useMenuStore } from "./Store";
 import { MVTLayer } from "@deck.gl/geo-layers";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
+
+import { PMTilesSource } from "@loaders.gl/pmtiles";
+import { MVTLoader } from "@loaders.gl/mvt";
+import { PMTLoader } from "@mgcth/deck.gl-pmtiles";
+
+import { TileLayer } from "@deck.gl/geo-layers";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -200,44 +207,106 @@ export function App() {
   }
 
   const lays = [
-    // new PMTLayer({
-    //   data: "file_2.pmtiles",
-    //   id: "c",
-    //   renderSubLayers: (props) => {
-    //     return (
-    //     // @ts-ignore
-    //     new DelaunayLayer({
-    //       ...props,
-    //       id: "c",
-    //       getPosition: (d) => d.c,
-    //       getValue: (d) => {
-    //         return d.t[z];
-    //       },
-    //       colorScale: (x) => {
-    //         return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
-    //       }
-    //     })
-    //     )
-    //   }
-    // }),
+    new TileLayer({
+      data: "http://localhost:5173/file_2/{z}/{x}/{y}.pbf",
+      id: "composite",
+      maxZoom: 8,
+      loaders: [MVTLoader],
+      loadOptions: { worker: false },
+      binary: false,
+      renderSubLayers: (props) => {
+        // console.log(props.data)
+        // const udata = []
+        // if (props.data) {
+        //   for (let i = 0; i < props.data.points.properties.length; i++) {
+        //     const c = props.data.points.properties[i].c
+        //       .replace("[", "")
+        //       .replace("]", "")
+        //       .split(",").map((x => Number(x)))
 
-    new MyCompositeLayer({
-      id: "f",
-      data: "file_2.pmtiles",
+        //     const t = props.data.points.properties[i].t
+        //       .replace("[", "")
+        //       .replace("]", "")
+        //       .split(",").map((x => Number(x)))
+
+        //     const time = props.data.points.properties[i].time
+        //       .replace("[", "")
+        //       .replace("]", "")
+        //       .split(",").map((x => Number(x)))
+
+        //       udata.push({c: c, t: t, time: time})
+        //   }
+        // }
+
+        // console.log(udata)
+
+        const { id } = props;
+        //console.log(props)
+
+        return (
+          // @ts-ignore
+          new DelaunayLayer({
+            ...props,
+            id: id + "c",
+            getPosition: (d) => {
+              let val = d.properties.c
+                .replace("[", "")
+                .replace("]", "")
+                .split(",")
+                .map((e) => Number(e));
+              //console.log(val)
+              return val;
+            },
+            getValue: (d) => {
+              let val = d.properties.t
+                .replace("[", "")
+                .replace("]", "")
+                .split(",")
+                .map((e) => Number(e))[0];
+              return val;
+            },
+            colorScale: (x) => {
+              let val = [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
+              return val;
+            },
+          })
+          // new GeoJsonLayer({
+          //   ...props,
+          //   id: id + 'geojson-layer',
+          //   pointType: 'circle',
+          //   getFillColor: (e) => {
+          //     //console.log(e)
+          //     return [160, 160, 180, 200]
+          //   },
+          //   getPointRadius: 100,
+          //   pointRadiusMinPixels: 1,
+          //   pointRadiusMaxPixels: 10,
+          // })
+        );
+      },
     }),
 
-    // // @ts-ignore
-    // new DelaunayLayer({
-    //   id: "c",
+    // new MyCompositeLayer({
+    //   id: "f",
     //   data: "file_2.pmtiles",
-    //   getPosition: (d) => d.c,
-    //   getValue: (d) => {
-    //     return d.d;
-    //   },
-    //   colorScale: (x) => {
-    //     return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
-    //   }
+    //   loaders: [PMTLoader],
+    //   loadOptions: {worker: false}
     // }),
+
+    // @ts-ignore
+    new DelaunayLayer({
+      id: "c",
+      data: "file_2.pmtiles",
+      getPosition: (d) => d.c,
+      getValue: (d) => {
+        return d.d;
+      },
+      colorScale: (x) => {
+        return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
+      },
+      loaders: [PMTLoader],
+      loadOptions: { worker: false },
+    }),
 
     // new MVTLayer({
     //   data: `file_2/{z}/{x}/{y}.pbf`,
