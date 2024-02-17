@@ -7,6 +7,7 @@ import { Protocol } from "pmtiles";
 import { ScatterplotLayer, GeoJsonLayer } from "@deck.gl/layers";
 import { interpolateYlOrRd } from "d3-scale-chromatic";
 import { color } from "d3-color";
+import { scaleQuantize } from "d3-scale";
 import { MyCompositeLayer } from "./delaunay.tsx";
 import DelaunayLayer from "./delaunay.tsx";
 import { useMenuStore } from "./Store";
@@ -14,10 +15,35 @@ import { MVTLayer } from "@deck.gl/geo-layers";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
 
 import { PMTilesSource } from "@loaders.gl/pmtiles";
-import { MVTLoader } from "@loaders.gl/mvt";
-import { PMTLoader } from "@mgcth/deck.gl-pmtiles";
 
-import { TileLayer } from "@deck.gl/geo-layers";
+function lerp(a: number, b: number, alpha: number) {
+  return a + alpha * (b - a);
+}
+
+function cartesianToWGS84(lngLat, boundingBox) {
+  const [minX, maxY] = boundingBox[0];
+  const [maxX, minY] = boundingBox[1];
+
+  const [x, y] = lngLat;
+  const x0 = lerp(minX, maxX, x);
+  const y0 = lerp(minY, maxY, y);
+  return [x0, y0];
+}
+
+function lon2tile(lon, zoom) {
+  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
+}
+function lat2tile(lat, zoom) {
+  return Math.floor(
+    ((1 -
+      Math.log(
+        Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180),
+      ) /
+        Math.PI) /
+      2) *
+      Math.pow(2, zoom),
+  );
+}
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -28,6 +54,7 @@ const INITIAL_VIEW_STATE = {
 };
 
 export function App() {
+  const [tmp, setTmp] = useState([]);
   const zoom = useMenuStore((state: any) => state.zoom);
   const setZoom = useMenuStore((state: any) => state.setZoom);
   const searchView = useMenuStore((state: any) => {
@@ -37,6 +64,7 @@ export function App() {
       return INITIAL_VIEW_STATE;
     }
   });
+  const [viewState, setViewState] = useState(searchView);
 
   // const step = 1;
   // const loopLength = 2500;
@@ -75,6 +103,43 @@ export function App() {
     return () => {
       maplibregl.removeProtocol("pmtiles");
     };
+  }, []);
+
+  useEffect(() => {
+    async function getMetadata(source) {
+      return await source.getMetadata();
+    }
+    async function tmp() {
+      const source = new PMTilesSource({
+        url: "http://localhost:5173/file_3.pmtiles",
+      });
+      const metadata = await getMetadata(source);
+      console.log(metadata);
+
+      const { boundingBox } = metadata;
+
+      const minY = lon2tile(boundingBox[0][0], zoom);
+      const maxY = lon2tile(boundingBox[0][1], zoom);
+      const minX = lat2tile(boundingBox[1][0], zoom);
+      const maxX = lon2tile(boundingBox[1][1], zoom);
+
+      console.log("z", zoom);
+      console.log("minY", minY);
+      console.log("maxY", maxY);
+      console.log("minX", minX);
+      console.log("maxX", maxX);
+
+      for (let i = minY; i <= maxY; i++) {
+        for (let j = minX; j <= maxX; j++) {
+          let tile = await source.getTile({ x: j, y: i, zoom: zoom });
+          console.log(i, j, tile);
+        }
+      }
+
+      return 1;
+    }
+
+    tmp();
   }, []);
 
   const layers = useMenuStore((state: any) => {
@@ -201,167 +266,110 @@ export function App() {
     return layers;
   });
 
-  function hexToRGB(hex) {
-    const c = color(hex);
-    return [c.r, c.g, c.b];
-  }
+  const layers2 = useMenuStore((state: any) => {
+    const layers = [];
+    layers.push(
+      new MVTLayer({
+        id: "geojson-layer",
+        data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
+        onViewportLoad: (e) => {
+          //console.log("onviewload", e)
 
-  const lays = [
-    new TileLayer({
-      data: "http://localhost:5173/file_2/{z}/{x}/{y}.pbf",
-      id: "composite",
-      maxZoom: 8,
-      loaders: [MVTLoader],
-      loadOptions: { worker: false },
-      binary: false,
-      renderSubLayers: (props) => {
-        // console.log(props.data)
-        // const udata = []
-        // if (props.data) {
-        //   for (let i = 0; i < props.data.points.properties.length; i++) {
-        //     const c = props.data.points.properties[i].c
-        //       .replace("[", "")
-        //       .replace("]", "")
-        //       .split(",").map((x => Number(x)))
+          const aa = [];
+          for (let i = 0; i < e.length; i++) {
+            const x = e[i];
+            const boundingBox = x.boundingBox;
 
-        //     const t = props.data.points.properties[i].t
-        //       .replace("[", "")
-        //       .replace("]", "")
-        //       .split(",").map((x => Number(x)))
+            function lerp(a: number, b: number, alpha: number) {
+              return a + alpha * (b - a);
+            }
 
-        //     const time = props.data.points.properties[i].time
-        //       .replace("[", "")
-        //       .replace("]", "")
-        //       .split(",").map((x => Number(x)))
+            function cartesianToWGS84(lngLat) {
+              const [minX, maxY] = boundingBox[0];
+              const [maxX, minY] = boundingBox[1];
 
-        //       udata.push({c: c, t: t, time: time})
-        //   }
-        // }
+              const [x, y] = lngLat;
+              const x0 = lerp(minX, maxX, x);
+              const y0 = lerp(minY, maxY, y);
+              return [x0, y0];
+            }
 
-        // console.log(udata)
+            if (x.content != null) {
+              let t = x.content.points.properties.map(
+                (y) => JSON.parse(y.t)[8],
+              );
+              const newArr = [];
+              const arr = Array.from(x.content.points.positions.value);
+              while (arr.length) newArr.push(arr.splice(0, 2));
+              let c = newArr.map((y) => cartesianToWGS84(y));
 
-        const { id } = props;
-        //console.log(props)
+              aa.push({ t: t, c: c });
+            }
+          }
 
-        return (
-          // @ts-ignore
-          new DelaunayLayer({
-            ...props,
-            id: id + "c",
-            getPosition: (d) => {
-              let val = d.properties.c
-                .replace("[", "")
-                .replace("]", "")
-                .split(",")
-                .map((e) => Number(e));
-              //console.log(val)
-              return val;
-            },
-            getValue: (d) => {
-              let val = d.properties.t
-                .replace("[", "")
-                .replace("]", "")
-                .split(",")
-                .map((e) => Number(e))[0];
-              return val;
-            },
-            colorScale: (x) => {
-              let val = [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
-              return val;
-            },
-          })
-          // new GeoJsonLayer({
-          //   ...props,
-          //   id: id + 'geojson-layer',
-          //   pointType: 'circle',
-          //   getFillColor: (e) => {
-          //     //console.log(e)
-          //     return [160, 160, 180, 200]
-          //   },
-          //   getPointRadius: 100,
-          //   pointRadiusMinPixels: 1,
-          //   pointRadiusMaxPixels: 10,
-          // })
-        );
-      },
-    }),
+          const bb = [];
+          for (let i = 0; i < aa.length; i++) {
+            for (let j = 0; j < aa[i].t.length; j++) {
+              bb.push({ t: aa[i].t[j], c: aa[i].c[j] });
+            }
+          }
 
-    // new MyCompositeLayer({
-    //   id: "f",
-    //   data: "file_2.pmtiles",
-    //   loaders: [PMTLoader],
-    //   loadOptions: {worker: false}
-    // }),
+          setTmp(bb);
+        },
+        maxZoom: 8,
+      }),
+    );
 
-    // @ts-ignore
-    new DelaunayLayer({
-      id: "c",
-      data: "file_2.pmtiles",
-      getPosition: (d) => d.c,
-      getValue: (d) => {
-        return d.d;
-      },
-      colorScale: (x) => {
-        return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
-      },
-      loaders: [PMTLoader],
-      loadOptions: { worker: false },
-    }),
+    function hexToRGB(hex) {
+      const c = color(hex);
+      return [c.r, c.g, c.b];
+    }
 
-    // new MVTLayer({
-    //   data: `file_2/{z}/{x}/{y}.pbf`,
+    layers.push(
+      // @ts-ignore
+      new DelaunayLayer({
+        id: "c",
+        data: tmp,
+        getPosition: (d) => d.c,
+        getValue: (d) => {
+          return d.t;
+        },
+        colorScale: (x) => {
+          let col = interpolateYlOrRd((x + 30) / 50);
+          let colorScale = scaleQuantize()
+            .domain(col)
+            .range(["red", "blue", "green"]);
+          console.log(colorScale);
 
-    //   minZoom: 0,
-    //   maxZoom: 23,
-    //   getFillColor: f => {
-    //     console.log(f)
-    //     return [100, 100, 100]
-    //   },
-    // })
+          return [
+            ...hexToRGB(col),
+            state.layer["Temperatur"].checked === true ? 200 : 0,
+          ];
+        },
+        updateTriggers: {
+          colorScale: [state.layer["Temperatur"].checked],
+        },
+      }),
+    );
 
-    // new ScatterplotLayer({
-    //   data: "file_2.json",
-    //   id: "c",
-    //   radiusMinPixels: 100,
-    //   radiusMaxPixels: 100,
-    //   getFillColor: d => {
-    //     console.log(d.t[0])
-    //     return [d.t[0]+100, d.t[0]+100, d.t[0]+100]
-    //   },
-    //   // // props added by DataFilterExtension
-    //   // getFilterValue: f => {
-    //   //   return f.time
-    //   // },  // in seconds
-    //   // filterRange: [0, 1],  // 12:00 - 13:00
-
-    //   // // Define extensions
-    //   // extensions: [new DataFilterExtension({filterSize: 1})]
-    // }),
-
-    // new ScatterplotLayer({
-    //   id: 'scatterplot-layer',
-    //   data: 'file.json',
-    //   pickable: true,
-    //   opacity: 0.6,
-    //   filled: true,
-    //   radiusScale: 6,
-    //   radiusMinPixels: 1,
-    //   radiusMaxPixels: 100,
-    //   lineWidthMinPixels: 1,
-    //   getPosition: d => d.c,
-    //   getRadius: d => Math.sqrt(d.exits),
-    //   getFillColor: d => [d.d*100, d.d*100, d.d*100],
-    // })
-  ];
+    return layers;
+  });
 
   return (
     <DeckGL
       initialViewState={searchView}
-      layers={lays}
+      layers={layers2}
       controller={{ inertia: 300, scrollZoom: { speed: 0.1, smooth: true } }}
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
         setZoom(viewState.zoom);
+
+        //console.log("viewstate", viewState)
+        const viewport = viewState;
+        //console.log("viewport", viewport)
+        // const visibleData = this.getVisibleData(viewport); // Implement getVisibleData function
+        // this.setState({ visibleData });
+
         return {
           ...viewState,
         };

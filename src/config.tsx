@@ -424,4 +424,12 @@ export const mapElements: Dictionary<MapElement> = {
     checked: true,
     stroke: 0,
   },
+  Temperatur: {
+    name: "01_temperatur",
+    color: colors["other-building"],
+    dark_color: colors["dark-other-building"],
+    type: "data",
+    checked: true,
+    stroke: 0,
+  },
 };
