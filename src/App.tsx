@@ -8,11 +8,12 @@ import { ScatterplotLayer, GeoJsonLayer } from "@deck.gl/layers";
 import { interpolateYlOrRd } from "d3-scale-chromatic";
 import { color } from "d3-color";
 import { scaleQuantize } from "d3-scale";
-import { MyCompositeLayer } from "./delaunay.tsx";
+import { MyLayer } from "./delaunay.tsx";
 import DelaunayLayer from "./delaunay.tsx";
 import { useMenuStore } from "./Store";
 import { MVTLayer } from "@deck.gl/geo-layers";
 import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
+import { MVTLoader } from "@loaders.gl/mvt";
 
 import { PMTilesSource } from "@loaders.gl/pmtiles";
 
@@ -109,38 +110,42 @@ export function App() {
     async function getMetadata(source) {
       return await source.getMetadata();
     }
+
     async function tmp() {
       const source = new PMTilesSource({
         url: "http://localhost:5173/file_3.pmtiles",
       });
       const metadata = await getMetadata(source);
-      console.log(metadata);
+      //console.log(metadata);
 
       const { boundingBox } = metadata;
 
-      const minY = lon2tile(boundingBox[0][0], zoom);
-      const maxY = lon2tile(boundingBox[0][1], zoom);
-      const minX = lat2tile(boundingBox[1][0], zoom);
-      const maxX = lon2tile(boundingBox[1][1], zoom);
+      const minX = lon2tile(boundingBox[0][0], zoom);
+      const maxX = lon2tile(boundingBox[1][0], zoom);
+      const maxY = lat2tile(boundingBox[0][1], zoom);
+      const minY = lat2tile(boundingBox[1][1], zoom);
 
-      console.log("z", zoom);
-      console.log("minY", minY);
-      console.log("maxY", maxY);
-      console.log("minX", minX);
-      console.log("maxX", maxX);
+      // console.log("boundingBox", boundingBox)
+      // console.log("z", zoom);
+      // console.log("minY", minY);
+      // console.log("maxY", maxY);
+      // console.log("minX", minX);
+      // console.log("maxX", maxX);
 
-      for (let i = minY; i <= maxY; i++) {
-        for (let j = minX; j <= maxX; j++) {
-          let tile = await source.getTile({ x: j, y: i, zoom: zoom });
-          console.log(i, j, tile);
-        }
-      }
+      // console.time(String(zoom))
+      // for (let i = minY; i <= maxY; i++) {
+      //   for (let j = minX; j <= maxX; j++) {
+      //     let tile = await source.getVectorTile({ x: j, y: i, zoom: zoom });
+      //     //console.log(zoom, i, j, tile);
+      //   }
+      // }
+      // console.timeEnd(String(zoom))
 
       return 1;
     }
 
     tmp();
-  }, []);
+  }, [zoom]);
 
   const layers = useMenuStore((state: any) => {
     let layers: any = [];
@@ -325,30 +330,39 @@ export function App() {
       return [c.r, c.g, c.b];
     }
 
+    // layers.push(
+    //   // @ts-ignore
+    //   new DelaunayLayer({
+    //     id: "c",
+    //     data: tmp,
+    //     getPosition: (d) => d.c,
+    //     getValue: (d) => {
+    //       return d.t;
+    //     },
+    //     colorScale: (x) => {
+    //       let col = interpolateYlOrRd((x + 30) / 50);
+    //       let colorScale = scaleQuantize()
+    //         .domain(col)
+    //         .range(["red", "blue", "green"]);
+    //       //console.log(colorScale);
+
+    //       return [
+    //         ...hexToRGB(col),
+    //         state.layer["Temperatur"].checked === true ? 200 : 0,
+    //       ];
+    //     },
+    //     updateTriggers: {
+    //       colorScale: [state.layer["Temperatur"].checked],
+    //     },
+    //   }),
+    // );
+
     layers.push(
       // @ts-ignore
-      new DelaunayLayer({
-        id: "c",
-        data: tmp,
-        getPosition: (d) => d.c,
-        getValue: (d) => {
-          return d.t;
-        },
-        colorScale: (x) => {
-          let col = interpolateYlOrRd((x + 30) / 50);
-          let colorScale = scaleQuantize()
-            .domain(col)
-            .range(["red", "blue", "green"]);
-          console.log(colorScale);
-
-          return [
-            ...hexToRGB(col),
-            state.layer["Temperatur"].checked === true ? 200 : 0,
-          ];
-        },
-        updateTriggers: {
-          colorScale: [state.layer["Temperatur"].checked],
-        },
+      new MyLayer({
+        id: "test",
+        data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
+        loaders: [MVTLoader],
       }),
     );
 
@@ -363,6 +377,11 @@ export function App() {
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
         setZoom(viewState.zoom);
+        //console.log(viewState)
+
+        // const {width, height } = viewState;
+
+        // view.makeViewport({width, height, viewState})
 
         //console.log("viewstate", viewState)
         const viewport = viewState;

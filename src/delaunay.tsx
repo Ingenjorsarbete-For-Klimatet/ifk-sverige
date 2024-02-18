@@ -105,6 +105,7 @@ export default class DelaunayLayer extends Layer {
   }
 
   updateState(params) {
+    //console.log("viewport", this.context.viewport)
     super.updateState(params);
 
     const { changeFlags } = params;
@@ -185,3 +186,215 @@ export default class DelaunayLayer extends Layer {
 
 DelaunayLayer.layerName = "DelaunayLayer";
 DelaunayLayer.defaultProps = defaultProps;
+
+import { CompositeLayer } from "deck.gl";
+
+import { MVTLayer, TileLayer } from "@deck.gl/geo-layers";
+import { MVTLoader } from "@loaders.gl/mvt";
+
+import { ScatterplotLayer } from "@deck.gl/layers";
+
+import { PMTilesSource } from "@loaders.gl/pmtiles";
+
+import { interpolateYlOrRd } from "d3-scale-chromatic";
+import { color } from "d3-color";
+import { scaleQuantize } from "d3-scale";
+
+function hexToRGB(hex) {
+  const c = color(hex);
+  return [c.r, c.g, c.b];
+}
+
+function lon2tile(lon, zoom) {
+  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
+}
+function lat2tile(lat, zoom) {
+  return Math.floor(
+    ((1 -
+      Math.log(
+        Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180),
+      ) /
+        Math.PI) /
+      2) *
+      Math.pow(2, zoom),
+  );
+}
+
+function getTilesInViewport(viewport, zoom) {
+  const { width, height, latitude, longitude, zoom: currentZoom } = viewport;
+  const tiles = [];
+
+  const tileSize = 256; // Standard tile size for most map tile services
+  const worldSize = Math.pow(2, zoom) * tileSize;
+
+  const topLeft = viewport.unproject([0, 0]);
+  const bottomRight = viewport.unproject([width, height]);
+
+  const tileX1 =
+    Math.floor((topLeft[0] + worldSize) / tileSize) % Math.pow(2, zoom);
+  const tileY1 =
+    Math.floor((topLeft[1] + worldSize) / tileSize) % Math.pow(2, zoom);
+  const tileX2 =
+    Math.floor((bottomRight[0] + worldSize) / tileSize) % Math.pow(2, zoom);
+  const tileY2 =
+    Math.floor((bottomRight[1] + worldSize) / tileSize) % Math.pow(2, zoom);
+
+  console.log("tileX1", tileX1);
+  console.log("tileY1", tileY1);
+  console.log("tileX2", tileX2);
+  console.log("tileY2", tileY2);
+
+  for (let x = tileX1; x <= tileX2; x++) {
+    for (let y = tileY1; y <= tileY2; y++) {
+      tiles.push({ x, y, zoom });
+    }
+  }
+
+  return tiles;
+}
+
+async function getMetadata(source) {
+  return await source.getMetadata();
+}
+
+function getTileCoordinates(boundingBox, zoom) {
+  const minX = lon2tile(boundingBox[0], zoom);
+  const maxX = lon2tile(boundingBox[2], zoom);
+  const maxY = lat2tile(boundingBox[1], zoom);
+  const minY = lat2tile(boundingBox[3], zoom);
+
+  return { minX, maxX, minY, maxY, zoom };
+}
+
+async function getAllTiles(source, viewTiles) {
+  let data = [];
+  const tiles = {};
+  for (let i = viewTiles.minY - 1; i <= viewTiles.maxY + 1; i++) {
+    for (let j = viewTiles.minX - 1; j <= viewTiles.maxX + 1; j++) {
+      let tile = await source.getVectorTile({
+        x: j,
+        y: i,
+        zoom: Math.floor(viewTiles.zoom),
+      });
+
+      if (tile != null) {
+        tile = tile.features.map((x) => {
+          return { c: x.geometry.coordinates, t: x.properties.t };
+        });
+
+        data = data.concat(tile);
+      }
+    }
+  }
+
+  //console.log("data", zoom, data);
+
+  return data;
+}
+
+function reloadData(viewTiles, oldViewTiles) {
+  const {
+    minX: minXOld,
+    minY: minYOld,
+    maxX: maxXOld,
+    maxY: maxYOld,
+    zoom: zoomOld,
+  } = oldViewTiles;
+  const { minX, minY, maxX, maxY, zoom } = viewTiles;
+
+  const reload = {
+    tiles: false,
+    zoom: false,
+  };
+
+  if (
+    minX != minXOld ||
+    minY != minYOld ||
+    maxX != maxXOld ||
+    maxY != maxYOld
+  ) {
+    reload.tiles = true;
+  }
+
+  if (Math.abs(zoom - (zoomOld - (zoomOld % Math.floor(zoomOld)))) >= 1) {
+    reload.zoom = true;
+  }
+
+  return reload;
+}
+
+export class MyLayer extends CompositeLayer {
+  initializeState() {
+    const source = new PMTilesSource({
+      url: "http://localhost:5173/file_3.pmtiles",
+    });
+
+    const viewTiles = getTileCoordinates(
+      this.context.viewport.getBounds(),
+      this.context.viewport.zoom,
+    );
+    viewTiles.zoom = viewTiles.zoom > 10 ? 10 : viewTiles.zoom;
+
+    const ldata = getAllTiles(source, viewTiles);
+    this.setState({
+      source: source,
+      storage: {},
+      viewTiles,
+      ldata,
+    });
+  }
+
+  updateState() {
+    const viewTiles = getTileCoordinates(
+      this.context.viewport.getBounds(),
+      Math.floor(this.context.viewport.zoom),
+    );
+
+    const reload = reloadData(viewTiles, this.state.viewTiles);
+    if (reload.tiles == true || reload.zoom == true) {
+      viewTiles.zoom = viewTiles.zoom > 10 ? 10 : viewTiles.zoom;
+      const ldata = getAllTiles(this.state.source, viewTiles);
+      this.setState({
+        storage: {},
+        viewTiles,
+        ldata,
+      });
+    } else {
+      this.setState({
+        storage: {},
+      });
+    }
+  }
+
+  renderLayers() {
+    //console.log("this", this)
+    return [
+      // @ts-ignore
+      new DelaunayLayer({
+        id: "c",
+        data: this.state.ldata,
+        getPosition: (d) => {
+          //console.log(d.c)
+          return d.c;
+        },
+        getValue: (d) => {
+          const t = d.t
+            .replace("[", "")
+            .replace("]", "")
+            .split(",")
+            .map((x) => Number(x));
+          return t[0];
+        },
+        colorScale: (x) => {
+          let col = interpolateYlOrRd((x + 30) / 50);
+          return [...hexToRGB(col), 200];
+        },
+        // updateTriggers: {
+        //   colorScale: [state.layer["Temperatur"].checked],
+        // },
+      }),
+    ];
+  }
+}
+
+MyLayer.layerName = "MyLayer";
