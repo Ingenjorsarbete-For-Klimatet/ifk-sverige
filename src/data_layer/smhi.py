@@ -1,37 +1,46 @@
 """SMHI data layer."""
 
 import json
-import pandas as pd
+import logging
 from smhi.mesan import Mesan
 
+logger = logging.getLogger()
 
-def save_mesan_multipoint(file: str) -> pd.DataFrame:
+
+def save_mesan_multipoint(file: str) -> None:
+    """Save Mesan multipoint data.
+
+    Args:
+        file: file path for saved file
+    """
     client = Mesan()
     valid_times = client.valid_time
-    coordinates = client.get_geo_multipoint(20)
-    # temperature = client.get_multipoint(valid_times[10], "t", "hl", 2, 10)
+    coordinates = client.get_geo_multipoint(1)
 
-    print(valid_times)
-    tmp = []
-    for i, time in enumerate(valid_times[1:-9]):
-        temperature = client.get_multipoint(time, "t", "hl", 2, 20)
-        tmp.append(temperature["values"].to_list())
+    all_temperatures = []
+    for i, time in enumerate(valid_times):
+        try:
+            temperature = client.get_multipoint(time, "t", "hl", 2, 1)
+        except KeyError:
+            logger.warning(f"No temperature data found for {time}.")
+            all_temperatures.append(temperature["values"].to_list())
+
+    if len(all_temperatures) == 0:
+        logger.warning("No data saved.")
+        return None
 
     features = []
-    for i, c in enumerate(coordinates):
-        temp = [j[i] for j in tmp]
-        features.append({"t": temp, "c": c, "time": len(tmp)})
-
-    #     {
-    #         # "type": "Feature",
-    #         # "properties": {
-    #         "t": tmp,
-    #         "c": coordinates[i],
-    #         "time": tm,
-    #         # },
-    #         # "geometry": {"type": "Point", "coordinates": coordinates[index]},
-    #     }
-    # )
+    for i, coord in enumerate(coordinates):
+        temperature = [j[i] for j in all_temperatures]
+        features.append(
+            {
+                "type": "Feature",
+                "properties": {
+                    "t": temperature,
+                },
+                "geometry": {"type": "Point", "coordinates": coord},
+            }
+        )
 
     geosjson = {
         "type": "FeatureCollection",
@@ -43,8 +52,4 @@ def save_mesan_multipoint(file: str) -> pd.DataFrame:
     }
 
     with open(file, "w") as f:
-        json.dump(features, f)
-
-    print(valid_times[0])
-
-    # return temperature_and_coordinates
+        json.dump(geosjson, f)
