@@ -326,7 +326,7 @@ function reloadData(viewTiles, oldViewTiles) {
 export class MyLayer extends CompositeLayer {
   initializeState() {
     const source = new PMTilesSource({
-      url: "http://localhost:5173/file_3.pmtiles",
+      url: "http://localhost:5173/mesan.pmtiles",
     });
 
     const viewTiles = getTileCoordinates(
@@ -386,8 +386,16 @@ export class MyLayer extends CompositeLayer {
           return t[0];
         },
         colorScale: (x) => {
-          let col = interpolateYlOrRd((x + 30) / 50);
-          return [...hexToRGB(col), 200];
+          const q = scaleQuantize(
+            [-50, 50],
+            [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+          );
+          //console.log(q(x))
+          //let col = interpolateYlOrRd((x + 30) / 50);
+          //console.log("x", x)
+          //console.log("q(x)", q(x))
+          //console.log("rgb", hexToRGB(interpolateYlOrRd(q(x))))
+          return [...hexToRGB(interpolateYlOrRd(q(x))), 200];
         },
         // updateTriggers: {
         //   colorScale: [state.layer["Temperatur"].checked],

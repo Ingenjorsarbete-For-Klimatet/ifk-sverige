@@ -106,47 +106,6 @@ export function App() {
     };
   }, []);
 
-  useEffect(() => {
-    async function getMetadata(source) {
-      return await source.getMetadata();
-    }
-
-    async function tmp() {
-      const source = new PMTilesSource({
-        url: "http://localhost:5173/file_3.pmtiles",
-      });
-      const metadata = await getMetadata(source);
-      //console.log(metadata);
-
-      const { boundingBox } = metadata;
-
-      const minX = lon2tile(boundingBox[0][0], zoom);
-      const maxX = lon2tile(boundingBox[1][0], zoom);
-      const maxY = lat2tile(boundingBox[0][1], zoom);
-      const minY = lat2tile(boundingBox[1][1], zoom);
-
-      // console.log("boundingBox", boundingBox)
-      // console.log("z", zoom);
-      // console.log("minY", minY);
-      // console.log("maxY", maxY);
-      // console.log("minX", minX);
-      // console.log("maxX", maxX);
-
-      // console.time(String(zoom))
-      // for (let i = minY; i <= maxY; i++) {
-      //   for (let j = minX; j <= maxX; j++) {
-      //     let tile = await source.getVectorTile({ x: j, y: i, zoom: zoom });
-      //     //console.log(zoom, i, j, tile);
-      //   }
-      // }
-      // console.timeEnd(String(zoom))
-
-      return 1;
-    }
-
-    tmp();
-  }, [zoom]);
-
   const layers = useMenuStore((state: any) => {
     let layers: any = [];
 
@@ -273,89 +232,6 @@ export function App() {
 
   const layers2 = useMenuStore((state: any) => {
     const layers = [];
-    layers.push(
-      new MVTLayer({
-        id: "geojson-layer",
-        data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
-        onViewportLoad: (e) => {
-          //console.log("onviewload", e)
-
-          const aa = [];
-          for (let i = 0; i < e.length; i++) {
-            const x = e[i];
-            const boundingBox = x.boundingBox;
-
-            function lerp(a: number, b: number, alpha: number) {
-              return a + alpha * (b - a);
-            }
-
-            function cartesianToWGS84(lngLat) {
-              const [minX, maxY] = boundingBox[0];
-              const [maxX, minY] = boundingBox[1];
-
-              const [x, y] = lngLat;
-              const x0 = lerp(minX, maxX, x);
-              const y0 = lerp(minY, maxY, y);
-              return [x0, y0];
-            }
-
-            if (x.content != null) {
-              let t = x.content.points.properties.map(
-                (y) => JSON.parse(y.t)[8],
-              );
-              const newArr = [];
-              const arr = Array.from(x.content.points.positions.value);
-              while (arr.length) newArr.push(arr.splice(0, 2));
-              let c = newArr.map((y) => cartesianToWGS84(y));
-
-              aa.push({ t: t, c: c });
-            }
-          }
-
-          const bb = [];
-          for (let i = 0; i < aa.length; i++) {
-            for (let j = 0; j < aa[i].t.length; j++) {
-              bb.push({ t: aa[i].t[j], c: aa[i].c[j] });
-            }
-          }
-
-          setTmp(bb);
-        },
-        maxZoom: 8,
-      }),
-    );
-
-    function hexToRGB(hex) {
-      const c = color(hex);
-      return [c.r, c.g, c.b];
-    }
-
-    // layers.push(
-    //   // @ts-ignore
-    //   new DelaunayLayer({
-    //     id: "c",
-    //     data: tmp,
-    //     getPosition: (d) => d.c,
-    //     getValue: (d) => {
-    //       return d.t;
-    //     },
-    //     colorScale: (x) => {
-    //       let col = interpolateYlOrRd((x + 30) / 50);
-    //       let colorScale = scaleQuantize()
-    //         .domain(col)
-    //         .range(["red", "blue", "green"]);
-    //       //console.log(colorScale);
-
-    //       return [
-    //         ...hexToRGB(col),
-    //         state.layer["Temperatur"].checked === true ? 200 : 0,
-    //       ];
-    //     },
-    //     updateTriggers: {
-    //       colorScale: [state.layer["Temperatur"].checked],
-    //     },
-    //   }),
-    // );
 
     layers.push(
       // @ts-ignore
