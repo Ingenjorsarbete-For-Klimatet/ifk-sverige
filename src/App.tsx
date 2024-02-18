@@ -239,6 +239,10 @@ export function App() {
         id: "test",
         data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
         loaders: [MVTLoader],
+        alpha: state.layer["Temperatur"].checked == true ? 200 : 0,
+        // updateTriggers: {
+        //   alpha: state.layer["Temperatur"].checked
+        // }
       }),
     );
 

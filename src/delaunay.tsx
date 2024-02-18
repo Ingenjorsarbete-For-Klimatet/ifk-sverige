@@ -387,7 +387,7 @@ export class MyLayer extends CompositeLayer {
         },
         colorScale: (x) => {
           const q = scaleQuantize(
-            [-50, 50],
+            [-10, 20],
             [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
           );
           //console.log(q(x))
@@ -395,11 +395,12 @@ export class MyLayer extends CompositeLayer {
           //console.log("x", x)
           //console.log("q(x)", q(x))
           //console.log("rgb", hexToRGB(interpolateYlOrRd(q(x))))
-          return [...hexToRGB(interpolateYlOrRd(q(x))), 200];
+          return [...hexToRGB(interpolateYlOrRd(q(x))), this.props.alpha];
+          //return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
         },
-        // updateTriggers: {
-        //   colorScale: [state.layer["Temperatur"].checked],
-        // },
+        updateTriggers: {
+          colorScale: [this.props.alpha],
+        },
       }),
     ];
   }
