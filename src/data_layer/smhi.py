@@ -2,18 +2,19 @@
 
 import json
 import logging
+from typing import Union, Optional
 from smhi.mesan import Mesan
+from smhi.metfcts import Metfcts
 
 logger = logging.getLogger()
 
 
-def save_mesan_multipoint(file: str) -> None:
-    """Save Mesan multipoint data.
+def get_data(client: Union[Mesan, Metfcts]) -> Optional[dict]:
+    """Get data from client.
 
     Args:
-        file: file path for saved file
+        client: Mesan or Metfcts clients
     """
-    client = Mesan()
     valid_times = client.valid_time
     coordinates = client.get_geo_multipoint(1)
 
@@ -21,9 +22,9 @@ def save_mesan_multipoint(file: str) -> None:
     for i, time in enumerate(valid_times):
         try:
             temperature = client.get_multipoint(time, "t", "hl", 2, 1)
+            all_temperatures.append(temperature["values"].to_list())
         except KeyError:
             logger.warning(f"No temperature data found for {time}.")
-            all_temperatures.append(temperature["values"].to_list())
 
     if len(all_temperatures) == 0:
         logger.warning("No data saved.")
@@ -42,7 +43,7 @@ def save_mesan_multipoint(file: str) -> None:
             }
         )
 
-    geosjson = {
+    return {
         "type": "FeatureCollection",
         "crs": {
             "type": "name",
@@ -51,5 +52,28 @@ def save_mesan_multipoint(file: str) -> None:
         "features": features,
     }
 
+
+def save_metfcts_multipoint(file: str) -> None:
+    """Save Metfcts multipoint data.
+
+    Args:
+        file: file path for saved file
+    """
+    client = Metfcts()
+    geojson = get_data(client)
+
     with open(file, "w") as f:
-        json.dump(geosjson, f)
+        json.dump(geojson, f)
+
+
+def save_mesan_multipoint(file: str) -> None:
+    """Save Mesan multipoint data.
+
+    Args:
+        file: file path for saved file
+    """
+    client = Mesan()
+    geojson = get_data(client)
+
+    with open(file, "w") as f:
+        json.dump(geojson, f)
