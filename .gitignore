@@ -189,3 +189,4 @@ dist-ssr
 *.pmtiles
 *.geojson
 *.gpkg
+*.pbf
