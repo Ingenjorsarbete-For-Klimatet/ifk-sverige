@@ -266,16 +266,21 @@ function getTileCoordinates(boundingBox, zoom) {
   return { minX, maxX, minY, maxY, zoom };
 }
 
-async function getAllTiles(source, viewTiles) {
+async function getAllTiles(source, tiles, viewTiles) {
+  const zoom = viewTiles.zoom;
+
   let data = [];
-  const tiles = {};
   for (let i = viewTiles.minY - 1; i <= viewTiles.maxY + 1; i++) {
     for (let j = viewTiles.minX - 1; j <= viewTiles.maxX + 1; j++) {
-      let tile = await source.getVectorTile({
-        x: j,
-        y: i,
-        zoom: Math.floor(viewTiles.zoom),
-      });
+      if (!tiles.hasOwnProperty(`${j}${i}${zoom}`)) {
+        tiles[`${j}${i}${zoom}`] = await source.getVectorTile({
+          x: j,
+          y: i,
+          zoom: Math.floor(zoom),
+        });
+      }
+
+      let tile = tiles[`${j}${i}${zoom}`];
 
       if (tile != null) {
         tile = tile.features.map((x) => {
@@ -290,6 +295,23 @@ async function getAllTiles(source, viewTiles) {
   //console.log("data", zoom, data);
 
   return data;
+}
+
+function clearTiles(tiles, viewTiles) {
+  const keepKeys = [];
+  for (let i = viewTiles.minY - 2; i <= viewTiles.maxY + 2; i++) {
+    for (let j = viewTiles.minX - 2; j <= viewTiles.maxX + 2; j++) {
+      keepKeys.push(`${j}${i}${viewTiles.zoom}`);
+    }
+  }
+
+  for (var key in tiles) {
+    if (tiles.hasOwnProperty(key)) {
+      if (!keepKeys.includes(key)) {
+        delete tiles[key];
+      }
+    }
+  }
 }
 
 function reloadData(viewTiles, oldViewTiles) {
@@ -334,13 +356,16 @@ export class MyLayer extends CompositeLayer {
       this.context.viewport.zoom,
     );
     viewTiles.zoom = viewTiles.zoom > 10 ? 10 : viewTiles.zoom;
+    const tiles = {};
 
-    const ldata = getAllTiles(source, viewTiles);
+    const ldata = getAllTiles(source, tiles, viewTiles);
+
     this.setState({
       source: source,
       storage: {},
       viewTiles,
       ldata,
+      tiles,
     });
   }
 
@@ -353,11 +378,15 @@ export class MyLayer extends CompositeLayer {
     const reload = reloadData(viewTiles, this.state.viewTiles);
     if (reload.tiles == true || reload.zoom == true) {
       viewTiles.zoom = viewTiles.zoom > 10 ? 10 : viewTiles.zoom;
-      const ldata = getAllTiles(this.state.source, viewTiles);
+
+      const ldata = getAllTiles(this.state.source, this.state.tiles, viewTiles);
+      clearTiles(this.state.tiles, viewTiles);
+
       this.setState({
         storage: {},
         viewTiles,
         ldata,
+        tiles: this.state.tiles,
       });
     } else {
       this.setState({
