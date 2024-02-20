@@ -429,7 +429,7 @@ export const mapElements: Dictionary<MapElement> = {
     color: colors["other-building"],
     dark_color: colors["dark-other-building"],
     type: "data",
-    checked: true,
+    checked: false,
     stroke: 0,
   },
 };
