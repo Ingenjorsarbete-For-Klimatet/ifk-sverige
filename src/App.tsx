@@ -253,7 +253,7 @@ export function App() {
     <DeckGL
       initialViewState={searchView}
       layers={layers2}
-      controller={{ inertia: 300, scrollZoom: { speed: 0.1, smooth: true } }}
+      controller={{ inertia: 500, scrollZoom: { speed: 0.2, smooth: false } }}
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
         setZoom(viewState.zoom);
