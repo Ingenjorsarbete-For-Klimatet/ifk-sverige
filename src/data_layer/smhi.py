@@ -3,8 +3,8 @@
 import json
 import logging
 from typing import Union, Optional
-from smhi.mesan import Mesan
-from smhi.metfcts import Metfcts
+from smhi.mesan import Mesan  # type: ignore
+from smhi.metfcts import Metfcts  # type: ignore
 
 logger = logging.getLogger()
 
