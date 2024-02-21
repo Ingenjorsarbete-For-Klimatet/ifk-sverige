@@ -36,5 +36,6 @@ dev = [
 where = ["src"]
 exclude = ["material"]
 
-[tool.mypy]
+[[tool.mypy.overrides]]
+module = ["smhi.*"]
 ignore_missing_imports = true

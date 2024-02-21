@@ -2,7 +2,7 @@
 
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
-from text_search_server import trie
+from text_search_server import trie  # type: ignore
 import geopandas as gpd  # type: ignore
 from fastapi.middleware.cors import CORSMiddleware
 

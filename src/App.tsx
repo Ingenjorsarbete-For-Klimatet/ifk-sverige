@@ -1,11 +1,16 @@
 import { createRoot } from "react-dom/client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import DeckGL from "deck.gl/typed";
 import { Map, MapProvider } from "react-map-gl";
 import maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
-
+import { ScatterplotLayer, GeoJsonLayer } from "@deck.gl/layers";
+import { interpolateYlOrRd } from "d3-scale-chromatic";
+import { color } from "d3-color";
+import DelaunayLayer from "./delaunay.tsx";
 import { useMenuStore } from "./Store";
+
+import { DataFilterExtension } from "@deck.gl/extensions";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -25,6 +30,37 @@ export function App() {
       return INITIAL_VIEW_STATE;
     }
   });
+
+  const step = 1;
+  const loopLength = 2500;
+  const [time, setTime] = useState(0);
+  const [z, setZ] = useState(0);
+  const [animation] = useState({});
+  const animate = () => {
+    setTime((t) => (t + step) % loopLength);
+    if (z > 13) {
+      setZ(0);
+    }
+    setZ((t) => t + 1);
+    setTimeout(() => {
+      animation.id = window.requestAnimationFrame(animate); // draw next frame
+    }, 100);
+  };
+  useEffect(() => {
+    if (!true) {
+      window.cancelAnimationFrame(animation.id);
+      return;
+    }
+
+    animation.id = window.requestAnimationFrame(animate); // start animation
+    return () => window.cancelAnimationFrame(animation.id);
+  }, [true]);
+
+  if (z > 12) {
+    setZ(0);
+  }
+
+  console.log(z);
 
   useEffect(() => {
     let protocol: any = new Protocol();
@@ -158,9 +194,70 @@ export function App() {
     return layers;
   });
 
+  function hexToRGB(hex) {
+    const c = color(hex);
+    return [c.r, c.g, c.b];
+  }
+
+  const lays = [
+    // @ts-ignore
+    new DelaunayLayer({
+      data: "file_2.json",
+      id: "c",
+      getPosition: (d) => d.c,
+      getValue: (d) => {
+        return d.t[z];
+      },
+      colorScale: (x) => {
+        return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
+      },
+      updateTriggers: {
+        getValue: { z },
+      },
+      transitions: {
+        getValue: "interpolation",
+      },
+    }),
+
+    // new ScatterplotLayer({
+    //   data: "file_2.json",
+    //   id: "c",
+    //   radiusMinPixels: 100,
+    //   radiusMaxPixels: 100,
+    //   getFillColor: d => {
+    //     console.log(d.t[0])
+    //     return [d.t[0]+100, d.t[0]+100, d.t[0]+100]
+    //   },
+    //   // // props added by DataFilterExtension
+    //   // getFilterValue: f => {
+    //   //   return f.time
+    //   // },  // in seconds
+    //   // filterRange: [0, 1],  // 12:00 - 13:00
+
+    //   // // Define extensions
+    //   // extensions: [new DataFilterExtension({filterSize: 1})]
+    // }),
+
+    // new ScatterplotLayer({
+    //   id: 'scatterplot-layer',
+    //   data: 'file.json',
+    //   pickable: true,
+    //   opacity: 0.6,
+    //   filled: true,
+    //   radiusScale: 6,
+    //   radiusMinPixels: 1,
+    //   radiusMaxPixels: 100,
+    //   lineWidthMinPixels: 1,
+    //   getPosition: d => d.c,
+    //   getRadius: d => Math.sqrt(d.exits),
+    //   getFillColor: d => [d.d*100, d.d*100, d.d*100],
+    // })
+  ];
+
   return (
     <DeckGL
       initialViewState={searchView}
+      layers={lays}
       controller={{ inertia: 300, scrollZoom: { speed: 1, smooth: true } }}
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
