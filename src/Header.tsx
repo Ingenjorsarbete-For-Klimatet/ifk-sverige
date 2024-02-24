@@ -65,6 +65,12 @@ const communicationList = Object.entries(mapElements)
     return <LayerLabel value={key} label={key} />;
   });
 
+const temperature = Object.entries(mapElements)
+  .filter(([_, value]) => value["type"] == "data")
+  .map(([key, _]) => {
+    return <LayerLabel value={key} label={key} />;
+  });
+
 // @ts-ignore
 function LayerLabel({ _, label }: any): any {
   const layer = useMenuStore((state: any) => state.layer);
@@ -232,7 +238,7 @@ export function Header() {
               </Tabs.List>
               <Tabs.Content value="vader">
                 <ScrollArea scrollbars="vertical" style={{ height: 270 }}>
-                  <Box style={{ padding: "0 10px" }}>{}</Box>
+                  <Box style={{ padding: "0 10px" }}>{temperature}</Box>
                 </ScrollArea>
               </Tabs.Content>
               <Tabs.Content value="vatten">

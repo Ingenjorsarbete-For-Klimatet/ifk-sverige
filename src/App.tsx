@@ -7,10 +7,44 @@ import { Protocol } from "pmtiles";
 import { ScatterplotLayer, GeoJsonLayer } from "@deck.gl/layers";
 import { interpolateYlOrRd } from "d3-scale-chromatic";
 import { color } from "d3-color";
+import { scaleQuantize } from "d3-scale";
+import { MyLayer } from "./delaunay.tsx";
 import DelaunayLayer from "./delaunay.tsx";
 import { useMenuStore } from "./Store";
+import { MVTLayer } from "@deck.gl/geo-layers";
+import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
+import { MVTLoader } from "@loaders.gl/mvt";
 
-import { DataFilterExtension } from "@deck.gl/extensions";
+import { PMTilesSource } from "@loaders.gl/pmtiles";
+
+function lerp(a: number, b: number, alpha: number) {
+  return a + alpha * (b - a);
+}
+
+function cartesianToWGS84(lngLat, boundingBox) {
+  const [minX, maxY] = boundingBox[0];
+  const [maxX, minY] = boundingBox[1];
+
+  const [x, y] = lngLat;
+  const x0 = lerp(minX, maxX, x);
+  const y0 = lerp(minY, maxY, y);
+  return [x0, y0];
+}
+
+function lon2tile(lon, zoom) {
+  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
+}
+function lat2tile(lat, zoom) {
+  return Math.floor(
+    ((1 -
+      Math.log(
+        Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180),
+      ) /
+        Math.PI) /
+      2) *
+      Math.pow(2, zoom),
+  );
+}
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -21,6 +55,7 @@ const INITIAL_VIEW_STATE = {
 };
 
 export function App() {
+  const [tmp, setTmp] = useState([]);
   const zoom = useMenuStore((state: any) => state.zoom);
   const setZoom = useMenuStore((state: any) => state.setZoom);
   const searchView = useMenuStore((state: any) => {
@@ -30,37 +65,38 @@ export function App() {
       return INITIAL_VIEW_STATE;
     }
   });
+  const [viewState, setViewState] = useState(searchView);
 
-  const step = 1;
-  const loopLength = 2500;
-  const [time, setTime] = useState(0);
-  const [z, setZ] = useState(0);
-  const [animation] = useState({});
-  const animate = () => {
-    setTime((t) => (t + step) % loopLength);
-    if (z > 13) {
-      setZ(0);
-    }
-    setZ((t) => t + 1);
-    setTimeout(() => {
-      animation.id = window.requestAnimationFrame(animate); // draw next frame
-    }, 100);
-  };
-  useEffect(() => {
-    if (!true) {
-      window.cancelAnimationFrame(animation.id);
-      return;
-    }
+  // const step = 1;
+  // const loopLength = 2500;
+  // const [time, setTime] = useState(0);
+  // const [z, setZ] = useState(0);
+  // const [animation] = useState({});
+  // const animate = () => {
+  //   setTime((t) => (t + step) % loopLength);
+  //   if (z > 13) {
+  //     setZ(0);
+  //   }
+  //   setZ((t) => t + 1);
+  //   setTimeout(() => {
+  //     animation.id = window.requestAnimationFrame(animate); // draw next frame
+  //   }, 100);
+  // };
+  // useEffect(() => {
+  //   if (!true) {
+  //     window.cancelAnimationFrame(animation.id);
+  //     return;
+  //   }
 
-    animation.id = window.requestAnimationFrame(animate); // start animation
-    return () => window.cancelAnimationFrame(animation.id);
-  }, [true]);
+  //   animation.id = window.requestAnimationFrame(animate); // start animation
+  //   return () => window.cancelAnimationFrame(animation.id);
+  // }, [true]);
 
-  if (z > 12) {
-    setZ(0);
-  }
+  // if (z > 12) {
+  //   setZ(0);
+  // }
 
-  console.log(z);
+  // console.log(z);
 
   useEffect(() => {
     let protocol: any = new Protocol();
@@ -194,74 +230,45 @@ export function App() {
     return layers;
   });
 
-  function hexToRGB(hex) {
-    const c = color(hex);
-    return [c.r, c.g, c.b];
-  }
+  const layers2 = useMenuStore((state: any) => {
+    const layers = [];
 
-  const lays = [
-    // @ts-ignore
-    new DelaunayLayer({
-      data: "file_2.json",
-      id: "c",
-      getPosition: (d) => d.c,
-      getValue: (d) => {
-        return d.t[z];
-      },
-      colorScale: (x) => {
-        return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
-      },
-      updateTriggers: {
-        getValue: { z },
-      },
-      transitions: {
-        getValue: "interpolation",
-      },
-    }),
+    layers.push(
+      // @ts-ignore
+      new MyLayer({
+        id: "test",
+        data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
+        loaders: [MVTLoader],
+        alpha: state.layer["Temperatur"].checked == true ? 200 : 0,
+        // updateTriggers: {
+        //   alpha: state.layer["Temperatur"].checked
+        // }
+      }),
+    );
 
-    // new ScatterplotLayer({
-    //   data: "file_2.json",
-    //   id: "c",
-    //   radiusMinPixels: 100,
-    //   radiusMaxPixels: 100,
-    //   getFillColor: d => {
-    //     console.log(d.t[0])
-    //     return [d.t[0]+100, d.t[0]+100, d.t[0]+100]
-    //   },
-    //   // // props added by DataFilterExtension
-    //   // getFilterValue: f => {
-    //   //   return f.time
-    //   // },  // in seconds
-    //   // filterRange: [0, 1],  // 12:00 - 13:00
-
-    //   // // Define extensions
-    //   // extensions: [new DataFilterExtension({filterSize: 1})]
-    // }),
-
-    // new ScatterplotLayer({
-    //   id: 'scatterplot-layer',
-    //   data: 'file.json',
-    //   pickable: true,
-    //   opacity: 0.6,
-    //   filled: true,
-    //   radiusScale: 6,
-    //   radiusMinPixels: 1,
-    //   radiusMaxPixels: 100,
-    //   lineWidthMinPixels: 1,
-    //   getPosition: d => d.c,
-    //   getRadius: d => Math.sqrt(d.exits),
-    //   getFillColor: d => [d.d*100, d.d*100, d.d*100],
-    // })
-  ];
+    return layers;
+  });
 
   return (
     <DeckGL
       initialViewState={searchView}
-      layers={lays}
-      controller={{ inertia: 300, scrollZoom: { speed: 1, smooth: true } }}
+      layers={layers2}
+      controller={{ inertia: 500, scrollZoom: { speed: 0.2, smooth: false } }}
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
         setZoom(viewState.zoom);
+        //console.log(viewState)
+
+        // const {width, height } = viewState;
+
+        // view.makeViewport({width, height, viewState})
+
+        //console.log("viewstate", viewState)
+        const viewport = viewState;
+        //console.log("viewport", viewport)
+        // const visibleData = this.getVisibleData(viewport); // Implement getVisibleData function
+        // this.setState({ visibleData });
+
         return {
           ...viewState,
         };
