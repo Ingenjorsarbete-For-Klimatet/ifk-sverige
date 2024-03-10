@@ -1,10 +1,26 @@
 import { PMTilesSource } from "@loaders.gl/pmtiles";
+// @ts-ignore
 import { color } from "d3-color";
+// @ts-ignore
 import { scaleQuantize } from "d3-scale";
+// @ts-ignore
 import { interpolateYlOrRd } from "d3-scale-chromatic";
-import { CompositeLayer } from "deck.gl";
+import { CompositeLayer, Viewport } from "@deck.gl/core";
 
 import DelaunayLayer from "./DelaunayLayer";
+
+interface ViewTile {
+  minX: number;
+  minY: number;
+  maxX: number;
+  maxY: number;
+  zoom: number;
+}
+
+interface Reload {
+  tiles: boolean;
+  zoom: boolean;
+}
 
 export default class DataTileLayer extends CompositeLayer {
   initializeState() {
@@ -17,13 +33,13 @@ export default class DataTileLayer extends CompositeLayer {
       this.context.viewport.zoom,
     );
     viewTiles.zoom = viewTiles.zoom > 10 ? 10 : viewTiles.zoom;
-    const tiles = {};
+    const tiles = new Map();
 
     const ldata = this.getAllTiles(source, tiles, viewTiles);
 
     this.setState({
       source: source,
-      storage: {},
+      storage: new Map(),
       viewTiles,
       ldata,
       tiles,
@@ -48,27 +64,25 @@ export default class DataTileLayer extends CompositeLayer {
       this.clearTiles(this.state.tiles, viewTiles);
 
       this.setState({
-        storage: {},
+        storage: new Map(),
         viewTiles,
         ldata,
         tiles: this.state.tiles,
       });
     } else {
       this.setState({
-        storage: {},
+        storage: new Map(),
       });
     }
   }
 
   renderLayers() {
-    //console.log("this", this)
     return [
       // @ts-ignore
       new DelaunayLayer({
         id: "c",
         data: this.state.ldata,
         getPosition: (d) => {
-          //console.log(d.c)
           return d.c;
         },
         getValue: (d) => {
@@ -84,13 +98,7 @@ export default class DataTileLayer extends CompositeLayer {
             [-10, 20],
             [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
           );
-          //console.log(q(x))
-          //let col = interpolateYlOrRd((x + 30) / 50);
-          //console.log("x", x)
-          //console.log("q(x)", q(x))
-          //console.log("rgb", hexToRGB(interpolateYlOrRd(q(x))))
           return [...this.hexToRGB(interpolateYlOrRd(q(x))), this.props.alpha];
-          //return [...hexToRGB(interpolateYlOrRd((x + 30) / 50)), 200];
         },
         updateTriggers: {
           colorScale: [this.props.alpha],
@@ -99,15 +107,15 @@ export default class DataTileLayer extends CompositeLayer {
     ];
   }
 
-  hexToRGB(hex) {
+  hexToRGB(hex: string): Array<number> {
     const c = color(hex);
     return [c.r, c.g, c.b];
   }
 
-  lon2tile(lon, zoom) {
+  lon2tile(lon: number, zoom: number): number {
     return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
   }
-  lat2tile(lat, zoom) {
+  lat2tile(lat: number, zoom: number): number {
     return Math.floor(
       ((1 -
         Math.log(
@@ -119,7 +127,10 @@ export default class DataTileLayer extends CompositeLayer {
     );
   }
 
-  getTilesInViewport(viewport, zoom) {
+  getTilesInViewport(
+    viewport: Viewport,
+    zoom: number,
+  ): Array<{ x: number; y: number; zoom: number }> {
     const { width, height, latitude, longitude, zoom: currentZoom } = viewport;
     const tiles = [];
 
@@ -138,11 +149,6 @@ export default class DataTileLayer extends CompositeLayer {
     const tileY2 =
       Math.floor((bottomRight[1] + worldSize) / tileSize) % Math.pow(2, zoom);
 
-    console.log("tileX1", tileX1);
-    console.log("tileY1", tileY1);
-    console.log("tileX2", tileX2);
-    console.log("tileY2", tileY2);
-
     for (let x = tileX1; x <= tileX2; x++) {
       for (let y = tileY1; y <= tileY2; y++) {
         tiles.push({ x, y, zoom });
@@ -156,7 +162,7 @@ export default class DataTileLayer extends CompositeLayer {
     return await source.getMetadata();
   }
 
-  getTileCoordinates(boundingBox, zoom) {
+  getTileCoordinates(boundingBox: Array<number>, zoom: number): ViewTile {
     const minX = this.lon2tile(boundingBox[0], zoom);
     const maxX = this.lon2tile(boundingBox[2], zoom);
     const maxY = this.lat2tile(boundingBox[1], zoom);
@@ -165,7 +171,11 @@ export default class DataTileLayer extends CompositeLayer {
     return { minX, maxX, minY, maxY, zoom };
   }
 
-  async getAllTiles(source, tiles, viewTiles) {
+  async getAllTiles(
+    source: PMTilesSource,
+    tiles: Map<string, any>,
+    viewTiles: ViewTile,
+  ): Promise<Array<{ c: number; t: number }>> {
     const zoom = viewTiles.zoom;
 
     let data = [];
@@ -173,6 +183,7 @@ export default class DataTileLayer extends CompositeLayer {
       for (let j = viewTiles.minX - 1; j <= viewTiles.maxX + 1; j++) {
         if (!tiles.hasOwnProperty(`${j}${i}${zoom}`)) {
           tiles[`${j}${i}${zoom}`] = await source.getVectorTile({
+            layers: "",
             x: j,
             y: i,
             zoom: Math.floor(zoom),
@@ -190,13 +201,10 @@ export default class DataTileLayer extends CompositeLayer {
         }
       }
     }
-
-    //console.log("data", zoom, data);
-
     return data;
   }
 
-  clearTiles(tiles, viewTiles) {
+  clearTiles(tiles: Map<string, any>, viewTiles: ViewTile) {
     const keepKeys = [];
     for (let i = viewTiles.minY - 2; i <= viewTiles.maxY + 2; i++) {
       for (let j = viewTiles.minX - 2; j <= viewTiles.maxX + 2; j++) {
@@ -213,7 +221,7 @@ export default class DataTileLayer extends CompositeLayer {
     }
   }
 
-  reloadData(viewTiles, oldViewTiles) {
+  reloadData(viewTiles: ViewTile, oldViewTiles: ViewTile): Reload {
     const {
       minX: minXOld,
       minY: minYOld,
@@ -246,3 +254,6 @@ export default class DataTileLayer extends CompositeLayer {
 }
 
 DataTileLayer.layerName = "DataTileLayer";
+DataTileLayer.defaultProps = {
+  alpha: 0,
+};

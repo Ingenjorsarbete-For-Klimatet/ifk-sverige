@@ -7,7 +7,7 @@ import { createRoot } from "react-dom/client";
 import { Map, MapProvider } from "react-map-gl";
 
 import DataTileLayer from "./DataTileLayer.tsx";
-import { useMenuStore } from "./Store.tsx";
+import { useMenuStore, MenuState } from "./Store.tsx";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -18,10 +18,9 @@ const INITIAL_VIEW_STATE = {
 };
 
 export function App() {
-  const [tmp, setTmp] = useState([]);
-  const zoom = useMenuStore((state: any) => state.zoom);
-  const setZoom = useMenuStore((state: any) => state.setZoom);
-  const searchView = useMenuStore((state: any) => {
+  const zoom = useMenuStore((state: MenuState) => state.zoom);
+  const setZoom = useMenuStore((state: MenuState) => state.setZoom);
+  const searchView = useMenuStore((state: MenuState) => {
     if (state.searchView.zoom) {
       return state.searchView;
     } else {
@@ -38,11 +37,14 @@ export function App() {
     };
   }, []);
 
-  const layers = useMenuStore((state: any) => {
-    const layers: any = [];
+  const layers = useMenuStore((state: MenuState) => {
+    const layers = [];
 
-    for (const p in state.layer) {
-      if (state.layer[p].type == "ground" && state.layer[p].checked == true) {
+    for (const [p, _] of state.layer) {
+      if (
+        state.layer.get(p)!.type == "ground" &&
+        state.layer.get(p)!.checked == true
+      ) {
         let opacity = 1;
         if (
           p == "Sverige" ||
@@ -62,21 +64,21 @@ export function App() {
         layers.push({
           id: p,
           source: "ground",
-          "source-layer": state.layer[p].name,
+          "source-layer": state.layer.get(p)!.name,
           type: "fill",
           paint: {
             "fill-color":
               state.theme == "light"
-                ? state.layer[p].color
-                : state.layer[p].dark_color,
+                ? state.layer.get(p)!.color
+                : state.layer.get(p)!.dark_color,
             "fill-opacity": opacity,
           },
         });
       }
 
       if (
-        state.layer[p].type == "communication" &&
-        state.layer[p].checked == true
+        state.layer.get(p)!.type == "communication" &&
+        state.layer.get(p)!.checked == true
       ) {
         let line_width = 2;
         let line_blur = 1;
@@ -94,7 +96,7 @@ export function App() {
         layers.push({
           id: `${p}_outline`,
           source: "connection",
-          "source-layer": state.layer[p].name,
+          "source-layer": state.layer.get(p)!.name,
           type: "line",
           paint: {
             "line-color": state.theme == "light" ? "#000" : "#fff",
@@ -106,13 +108,13 @@ export function App() {
         layers.push({
           id: p,
           source: "connection",
-          "source-layer": state.layer[p].name,
+          "source-layer": state.layer.get(p)!.name,
           type: "line",
           paint: {
             "line-color":
               state.theme == "light"
-                ? state.layer[p].color
-                : state.layer[p].dark_color,
+                ? state.layer.get(p)!.color
+                : state.layer.get(p)!.dark_color,
             "line-width": line_width,
             "line-gap-width": line_gap_width,
           },
@@ -162,7 +164,7 @@ export function App() {
     return layers;
   });
 
-  const layers2 = useMenuStore((state: any) => {
+  const layers2 = useMenuStore((state: MenuState) => {
     const layers = [];
 
     layers.push(
@@ -171,7 +173,7 @@ export function App() {
         id: "test",
         data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
         loaders: [MVTLoader],
-        alpha: state.layer.Temperatur.checked == true ? 200 : 0,
+        alpha: state.layer.get("Temperatur")!.checked == true ? 200 : 0,
         // updateTriggers: {
         //   alpha: state.layer["Temperatur"].checked
         // }

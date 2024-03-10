@@ -1,12 +1,36 @@
 import { FlyToInterpolator } from "@deck.gl/core/typed";
 import { create } from "zustand";
 
-import { mapElements } from "../config";
+import { mapElements, MapElement } from "../config";
 
-export const useMenuStore = create((set) => ({
+interface SearchView {
+  latitude: number;
+  longitude: number;
+  zoom: number;
+  minZoom: number;
+  maxZoom: number;
+  pitch: number;
+  bearing: number;
+  transitionDuration: number;
+  transitionInterpolator: Function;
+}
+
+export interface MenuState {
+  zoom: number;
+  theme: string;
+  layer: Map<string, MapElement>;
+  searchResult: {};
+  searchView: SearchView;
+  setZoom: (zoom: number) => void;
+  setTheme: () => void;
+  toggleLayer: (selectedLayer: string, checked: boolean) => void;
+  setSearchResult: (result: any, fun: any) => void;
+}
+
+export const useMenuStore = create<MenuState>((set) => ({
   zoom: 4,
   theme: "light",
-  layer: structuredClone(mapElements),
+  layer: new Map(mapElements),
   searchResult: {},
   searchView: {},
   setZoom: (zoom: number) => {
@@ -19,16 +43,15 @@ export const useMenuStore = create((set) => ({
   },
   toggleLayer: (selectedLayer: string, checked: boolean) =>
     set((state: any): any => ({
-      layer: {
-        ...state.layer,
-        [selectedLayer]: {
-          ...state.layer[selectedLayer],
-          ["checked"]: checked,
-          ["color"]: checked ? mapElements[selectedLayer].color : [0, 0, 0, 0],
-        },
-      },
+      layer: new Map(state.layer).set(selectedLayer, {
+        ...state.layer.get(selectedLayer),
+        ["checked"]: checked,
+        ["color"]: checked
+          ? mapElements.get(selectedLayer)!.color
+          : [0, 0, 0, 0],
+      }),
     })),
-  setSearchResult: (result: any, fun: any) => {
+  setSearchResult: (result: any, fun: Function) => {
     const view = {
       latitude: result.geometry_xy[1],
       longitude: result.geometry_xy[0],

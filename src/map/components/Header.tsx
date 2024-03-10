@@ -52,19 +52,19 @@ async function loadOptions(inputValue: string) {
 
 const defaultSearchOptions = await getDefaultSearchOptions(options);
 
-const groundList = Object.entries(mapElements)
+const groundList = Array.from(mapElements)
   .filter(([_, value]) => value.type == "ground")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
   });
 
-const communicationList = Object.entries(mapElements)
+const communicationList = Array.from(mapElements)
   .filter(([_, value]) => value.type == "communication")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
   });
 
-const temperature = Object.entries(mapElements)
+const temperature = Array.from(mapElements)
   .filter(([_, value]) => value.type == "data")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
@@ -75,13 +75,14 @@ function LayerLabel({ _, label }: any): any {
   const layer = useMenuStore((state: any) => state.layer);
   const toggleLayer = useMenuStore((state: any) => state.toggleLayer);
 
+  console.log(layer);
   return (
     <Text as="label" size="2">
       <Flex justify="between" gap="2" style={{ margin: "9px 0" }}>
         {label}
         <Switch
           id={label}
-          checked={layer[label].checked}
+          checked={layer.get(label)!.checked}
           onCheckedChange={(e) => {
             return toggleLayer(label, e);
           }}
