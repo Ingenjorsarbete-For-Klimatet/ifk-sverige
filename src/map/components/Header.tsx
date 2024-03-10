@@ -1,25 +1,24 @@
-import { useState } from "react";
 import {
-  Button,
   Box,
+  Button,
   Flex,
   Popover,
-  Tabs,
-  Text,
   ScrollArea,
   Switch,
+  Tabs,
+  Text,
 } from "@radix-ui/themes";
-import AsyncSelect from "react-select/async";
-import { mapElements } from "./config";
-import { useMenuStore } from "./Store";
 import { Theme } from "@radix-ui/themes";
+import { useState } from "react";
+import AsyncSelect from "react-select/async";
+
+import { mapElements } from "../config";
+import { useMenuStore } from "./Store";
 
 const options = ["Stockholm", "Göteborg", "Malmö"];
 
-async function getDefaultSearchOptions(
-  defaultOptions: Array<string>,
-): Promise<any> {
-  let options = [];
+async function getDefaultSearchOptions(defaultOptions: string[]): Promise<any> {
+  const options = [];
 
   for (const option of defaultOptions) {
     const optionResult = await loadOptions(option);
@@ -45,7 +44,7 @@ async function loadOptions(inputValue: string) {
     .then((res) => res.json())
     .catch((err) => console.log(err))
     .then((res) =>
-      res["matches"].sort(function (first: any, second: any) {
+      res.matches.sort(function (first: any, second: any) {
         return second.textstorleksklass - first.textstorleksklass;
       }),
     );
@@ -54,19 +53,19 @@ async function loadOptions(inputValue: string) {
 const defaultSearchOptions = await getDefaultSearchOptions(options);
 
 const groundList = Object.entries(mapElements)
-  .filter(([_, value]) => value["type"] == "ground")
+  .filter(([_, value]) => value.type == "ground")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
   });
 
 const communicationList = Object.entries(mapElements)
-  .filter(([_, value]) => value["type"] == "communication")
+  .filter(([_, value]) => value.type == "communication")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
   });
 
 const temperature = Object.entries(mapElements)
-  .filter(([_, value]) => value["type"] == "data")
+  .filter(([_, value]) => value.type == "data")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
   });

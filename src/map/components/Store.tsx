@@ -1,6 +1,7 @@
-import { create } from "zustand";
-import { mapElements } from "./config";
 import { FlyToInterpolator } from "@deck.gl/core/typed";
+import { create } from "zustand";
+
+import { mapElements } from "../config";
 
 export const useMenuStore = create((set) => ({
   zoom: 4,

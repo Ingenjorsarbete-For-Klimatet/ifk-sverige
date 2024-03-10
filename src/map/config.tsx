@@ -1,23 +1,21 @@
 // @ts-ignore
 import colors from "./colors.module.css";
 
-interface Dictionary<T> {
-  [Key: string]: T;
-}
+type Dictionary<T> = Record<string, T>;
 
-type MapElement = {
+interface MapElement {
   name: string;
-  color: Array<number>;
-  dark_color: Array<number>;
+  color: number[];
+  dark_color: number[];
   type: string;
   checked: boolean;
   stroke: number;
-};
+}
 
 export const mapElements: Dictionary<MapElement> = {
   Sverige: {
     name: "00_sverige",
-    color: colors["ground"],
+    color: colors.ground,
     dark_color: colors["dark-ground"],
     type: "ground",
     checked: true,
@@ -25,7 +23,7 @@ export const mapElements: Dictionary<MapElement> = {
   },
   "Anlagt vatten": {
     name: "01_anlagt_vatten",
-    color: colors["water"],
+    color: colors.water,
     dark_color: colors["dark-water"],
     type: "ground",
     checked: true,
@@ -33,7 +31,7 @@ export const mapElements: Dictionary<MapElement> = {
   },
   Vattendragsyta: {
     name: "02_vattendragsyta",
-    color: colors["water"],
+    color: colors.water,
     dark_color: colors["dark-water"],
     type: "ground",
     checked: true,
@@ -41,7 +39,7 @@ export const mapElements: Dictionary<MapElement> = {
   },
   Sjö: {
     name: "03_sjo",
-    color: colors["water"],
+    color: colors.water,
     dark_color: colors["dark-water"],
     type: "ground",
     checked: true,
@@ -49,7 +47,7 @@ export const mapElements: Dictionary<MapElement> = {
   },
   Glaciär: {
     name: "04_glaciar",
-    color: colors["glacier"],
+    color: colors.glacier,
     dark_color: colors["dark-glacier"],
     type: "ground",
     checked: true,
@@ -81,7 +79,7 @@ export const mapElements: Dictionary<MapElement> = {
   },
   Åker: {
     name: "09_aker",
-    color: colors["field"],
+    color: colors.field,
     dark_color: colors["dark-field"],
     type: "ground",
     checked: true,
@@ -137,7 +135,7 @@ export const mapElements: Dictionary<MapElement> = {
   },
   Motorväg: {
     name: "01_motorvag",
-    color: colors["motorway"],
+    color: colors.motorway,
     dark_color: colors["dark-motorway"],
     type: "communication",
     checked: true,

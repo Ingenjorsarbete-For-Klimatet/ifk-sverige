@@ -1,50 +1,13 @@
-import { createRoot } from "react-dom/client";
-import { useEffect, useState } from "react";
+import { MVTLoader } from "@loaders.gl/mvt";
 import DeckGL from "deck.gl/typed";
-import { Map, MapProvider } from "react-map-gl";
 import maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import { ScatterplotLayer, GeoJsonLayer } from "@deck.gl/layers";
-import { interpolateYlOrRd } from "d3-scale-chromatic";
-import { color } from "d3-color";
-import { scaleQuantize } from "d3-scale";
-import { MyLayer } from "./delaunay.tsx";
-import DelaunayLayer from "./delaunay.tsx";
-import { useMenuStore } from "./Store";
-import { MVTLayer } from "@deck.gl/geo-layers";
-import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
-import { MVTLoader } from "@loaders.gl/mvt";
+import { useEffect, useState } from "react";
+import { createRoot } from "react-dom/client";
+import { Map, MapProvider } from "react-map-gl";
 
-import { PMTilesSource } from "@loaders.gl/pmtiles";
-
-function lerp(a: number, b: number, alpha: number) {
-  return a + alpha * (b - a);
-}
-
-function cartesianToWGS84(lngLat, boundingBox) {
-  const [minX, maxY] = boundingBox[0];
-  const [maxX, minY] = boundingBox[1];
-
-  const [x, y] = lngLat;
-  const x0 = lerp(minX, maxX, x);
-  const y0 = lerp(minY, maxY, y);
-  return [x0, y0];
-}
-
-function lon2tile(lon, zoom) {
-  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
-}
-function lat2tile(lat, zoom) {
-  return Math.floor(
-    ((1 -
-      Math.log(
-        Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180),
-      ) /
-        Math.PI) /
-      2) *
-      Math.pow(2, zoom),
-  );
-}
+import DataTileLayer from "./DataTileLayer.tsx";
+import { useMenuStore } from "./Store.tsx";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -67,39 +30,8 @@ export function App() {
   });
   const [viewState, setViewState] = useState(searchView);
 
-  // const step = 1;
-  // const loopLength = 2500;
-  // const [time, setTime] = useState(0);
-  // const [z, setZ] = useState(0);
-  // const [animation] = useState({});
-  // const animate = () => {
-  //   setTime((t) => (t + step) % loopLength);
-  //   if (z > 13) {
-  //     setZ(0);
-  //   }
-  //   setZ((t) => t + 1);
-  //   setTimeout(() => {
-  //     animation.id = window.requestAnimationFrame(animate); // draw next frame
-  //   }, 100);
-  // };
-  // useEffect(() => {
-  //   if (!true) {
-  //     window.cancelAnimationFrame(animation.id);
-  //     return;
-  //   }
-
-  //   animation.id = window.requestAnimationFrame(animate); // start animation
-  //   return () => window.cancelAnimationFrame(animation.id);
-  // }, [true]);
-
-  // if (z > 12) {
-  //   setZ(0);
-  // }
-
-  // console.log(z);
-
   useEffect(() => {
-    let protocol: any = new Protocol();
+    const protocol: any = new Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
     return () => {
       maplibregl.removeProtocol("pmtiles");
@@ -107,7 +39,7 @@ export function App() {
   }, []);
 
   const layers = useMenuStore((state: any) => {
-    let layers: any = [];
+    const layers: any = [];
 
     for (const p in state.layer) {
       if (state.layer[p].type == "ground" && state.layer[p].checked == true) {
@@ -235,11 +167,11 @@ export function App() {
 
     layers.push(
       // @ts-ignore
-      new MyLayer({
+      new DataTileLayer({
         id: "test",
         data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
         loaders: [MVTLoader],
-        alpha: state.layer["Temperatur"].checked == true ? 200 : 0,
+        alpha: state.layer.Temperatur.checked == true ? 200 : 0,
         // updateTriggers: {
         //   alpha: state.layer["Temperatur"].checked
         // }
