@@ -62,4 +62,4 @@ export interface DataLayerState {
   tiles: any;
 }
 
-export type DataTileMap = Map<string, Promise<unknown | null>>;
+export type DataTileMap = Map<string, unknown>;

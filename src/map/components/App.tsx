@@ -168,14 +168,13 @@ export function App() {
     const layers = [];
 
     layers.push(
-      // @ts-ignore
       new DataTileLayer({
         id: "test",
         data: "http://localhost:5173/mesan.pmtiles",
         loaders: [MVTLoader],
         alpha: state.layer.get("Temperatur")!.checked == true ? 200 : 0,
         // updateTriggers: {
-        //   alpha: state.layer["Temperatur"].checked
+        //   alpha: state.layer.get("Temperatur")?.checked
         // }
       }),
     );

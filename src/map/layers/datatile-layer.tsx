@@ -95,7 +95,7 @@ export default class DataTileLayer<
             .replace("[", "")
             .replace("]", "")
             .split(",")
-            .map((x) => Number(x));
+            .map((x: string) => Number(x));
           return t[0];
         },
         colorScale: (x) => {
@@ -178,7 +178,7 @@ export default class DataTileLayer<
 
   async getAllTiles(
     source: PMTilesSource,
-    tiles: Map<string, Promise<unknown | null>>,
+    tiles: Map<string, unknown>,
     viewTiles: ViewTile,
   ): Promise<Array<{ c: number; t: number }>> {
     const zoom = viewTiles.zoom;
