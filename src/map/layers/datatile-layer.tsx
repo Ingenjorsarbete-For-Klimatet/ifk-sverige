@@ -136,7 +136,8 @@ export default class DataTileLayer<
     viewport: Viewport,
     zoom: number,
   ): Array<{ x: number; y: number; zoom: number }> {
-    const { width, height, latitude, longitude, zoom: currentZoom } = viewport;
+    // @ts-ignore
+    const { width, height, latitude, longitude } = viewport;
     const tiles = [];
 
     const tileSize = 256; // Standard tile size for most map tile services
@@ -180,10 +181,10 @@ export default class DataTileLayer<
     source: PMTilesSource,
     tiles: Map<string, unknown>,
     viewTiles: ViewTile,
-  ): Promise<Array<{ c: number; t: number }>> {
+  ): Promise<Array<{ c: number; t: number } | unknown>> {
     const zoom = viewTiles.zoom;
 
-    let data = [];
+    let data: Array<{ c: number; t: number } | unknown> = [];
     for (let i = viewTiles.minY - 1; i <= viewTiles.maxY + 1; i++) {
       for (let j = viewTiles.minX - 1; j <= viewTiles.maxX + 1; j++) {
         if (!tiles.hasOwnProperty(`${j}${i}${zoom}`)) {
@@ -201,6 +202,7 @@ export default class DataTileLayer<
         let tile = tiles.get(`${j}${i}${zoom}`);
 
         if (tile != null) {
+          // @ts-ignore
           tile = tile.features.map((x) => {
             return { c: x.geometry.coordinates, t: x.properties.t };
           });
