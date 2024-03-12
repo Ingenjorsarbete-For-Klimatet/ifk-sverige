@@ -1,13 +1,31 @@
-import { Layer, picking, project32 } from "@deck.gl/core";
+import {
+  Layer,
+  picking,
+  project32,
+  DefaultProps,
+  Accessor,
+  LayerProps,
+} from "@deck.gl/core";
 import GL from "@luma.gl/constants";
 import { Model } from "@luma.gl/core";
 import { Delaunay } from "d3-delaunay";
 
-const defaultProps = {
-  getPosition: { type: "accessor", value: (d) => d.position },
-  getValue: { type: "accessor", value: (d) => 0 },
-  colorScale: { type: "function", value: (x) => [255, 0, 0] },
+type ColorScale<DataT> = (data: DataT) => Array<number>;
+
+const defaultProps: DefaultProps<DelaunayLayerProps> = {
+  getPosition: { type: "accessor", value: (d: any) => d.position },
+  getValue: { type: "accessor", value: () => 0 },
+  colorScale: { type: "function", value: () => [255, 0, 0] },
 };
+
+type _DelaunayLayerProps<DataT> = {
+  getPosition?: Accessor<DataT, Array<number>>;
+  getValue?: Accessor<DataT, number>;
+  colorScale?: ColorScale<DataT>;
+};
+
+export type DelaunayLayerProps<DataT = unknown> = _DelaunayLayerProps<DataT> &
+  LayerProps;
 
 const PICKABLE_VALUE_RANGE = 256 * 256 * 256 - 1;
 
@@ -50,8 +68,14 @@ void main(void) {
 }
 `;
 
-export default class DelaunayLayer extends Layer {
-  getShaders() {
+export default class DelaunayLayer<
+  DataT = any,
+  ExtraPropsT extends {} = {},
+> extends Layer<ExtraPropsT & Required<_DelaunayLayerProps<DataT>>> {
+  static layerName = "DelaunayLayer";
+  static defaultProps = defaultProps;
+
+  getShaders(): void {
     return super.getShaders({
       vs,
       fs,
@@ -59,12 +83,12 @@ export default class DelaunayLayer extends Layer {
     });
   }
 
-  initializeState() {
+  initializeState(): void {
     const attributeManager = this.getAttributeManager();
 
-    attributeManager.remove(["instancePickingColors"]);
+    attributeManager?.remove(["instancePickingColors"]);
 
-    attributeManager.add({
+    attributeManager?.add({
       indices: {
         size: 1,
         isIndexed: true,
@@ -86,7 +110,7 @@ export default class DelaunayLayer extends Layer {
         transition: true,
         accessor: "getValue",
         defaultValue: [0, 0, 0, 255],
-        transform: (x) => this.getCurrentLayer().props.colorScale(x),
+        transform: (x) => this.getCurrentLayer()?.props.colorScale(x),
       },
       pickingColors: {
         size: 3,
@@ -103,7 +127,7 @@ export default class DelaunayLayer extends Layer {
     });
   }
 
-  updateState(params) {
+  updateState(params): void {
     //console.log("viewport", this.context.viewport)
     super.updateState(params);
 
@@ -114,7 +138,7 @@ export default class DelaunayLayer extends Layer {
       }
 
       this.setState({ model: this._getModel(this.context.gl) });
-      this.getAttributeManager().invalidateAll();
+      this.getAttributeManager()?.invalidateAll();
     }
     if (
       changeFlags.dataChanged ||
@@ -181,6 +205,3 @@ export default class DelaunayLayer extends Layer {
     attribute.value = new Uint32Array(indices);
   }
 }
-
-DelaunayLayer.layerName = "DelaunayLayer";
-DelaunayLayer.defaultProps = defaultProps;

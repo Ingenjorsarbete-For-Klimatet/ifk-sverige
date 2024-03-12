@@ -7,7 +7,8 @@ import { createRoot } from "react-dom/client";
 import { Map, MapProvider } from "react-map-gl";
 
 import DataTileLayer from "./DataTileLayer.tsx";
-import { useMenuStore, MenuState } from "./Store.tsx";
+import { useMenuStore } from "./Store.tsx";
+import { MenuState, SearchView } from "../types.tsx";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -15,7 +16,7 @@ const INITIAL_VIEW_STATE = {
   zoom: 4,
   minZoom: 4,
   maxZoom: 14,
-};
+} as SearchView;
 
 export function App() {
   const zoom = useMenuStore((state: MenuState) => state.zoom);
@@ -27,7 +28,6 @@ export function App() {
       return INITIAL_VIEW_STATE;
     }
   });
-  const [viewState, setViewState] = useState(searchView);
 
   useEffect(() => {
     const protocol: any = new Protocol();
@@ -171,7 +171,7 @@ export function App() {
       // @ts-ignore
       new DataTileLayer({
         id: "test",
-        data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
+        data: "http://localhost:5173/mesan.pmtiles",
         loaders: [MVTLoader],
         alpha: state.layer.get("Temperatur")!.checked == true ? 200 : 0,
         // updateTriggers: {
@@ -191,17 +191,6 @@ export function App() {
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
         setZoom(viewState.zoom);
-        //console.log(viewState)
-
-        // const {width, height } = viewState;
-
-        // view.makeViewport({width, height, viewState})
-
-        //console.log("viewstate", viewState)
-        const viewport = viewState;
-        //console.log("viewport", viewport)
-        // const visibleData = this.getVisibleData(viewport); // Implement getVisibleData function
-        // this.setState({ visibleData });
 
         return {
           ...viewState,

@@ -5,27 +5,32 @@ import { color } from "d3-color";
 import { scaleQuantize } from "d3-scale";
 // @ts-ignore
 import { interpolateYlOrRd } from "d3-scale-chromatic";
-import { CompositeLayer, Viewport } from "@deck.gl/core";
+import { CompositeLayer, CompositeLayerProps, Viewport } from "@deck.gl/core";
 
 import DelaunayLayer from "./DelaunayLayer";
+import { ViewTile, Reload, DataLayerState, DataTileMap } from "../types.tsx";
 
-interface ViewTile {
-  minX: number;
-  minY: number;
-  maxX: number;
-  maxY: number;
-  zoom: number;
-}
+const defaultProps = {
+  alpha: { type: "number", value: 0 },
+  data: { type: "string", value: "" },
+};
 
-interface Reload {
-  tiles: boolean;
-  zoom: boolean;
-}
+type _DataTileLayerProps = {
+  alpha?: number;
+  data?: string;
+};
 
-export default class DataTileLayer extends CompositeLayer {
-  initializeState() {
+export type DelaunayLayerProps = _DataTileLayerProps & CompositeLayerProps;
+
+export default class DataTileLayer<
+  ExtraPropsT extends {} = {},
+> extends CompositeLayer<ExtraPropsT & Required<_DataTileLayerProps>> {
+  static layerName = "DataTileLayer";
+  static defaultProps = defaultProps;
+
+  initializeState(): void {
     const source = new PMTilesSource({
-      url: "http://localhost:5173/mesan.pmtiles",
+      url: this.props.data,
     });
 
     const viewTiles = this.getTileCoordinates(
@@ -33,7 +38,7 @@ export default class DataTileLayer extends CompositeLayer {
       this.context.viewport.zoom,
     );
     viewTiles.zoom = viewTiles.zoom > 10 ? 10 : viewTiles.zoom;
-    const tiles = new Map();
+    const tiles = new Map() as DataTileMap;
 
     const ldata = this.getAllTiles(source, tiles, viewTiles);
 
@@ -43,32 +48,32 @@ export default class DataTileLayer extends CompositeLayer {
       viewTiles,
       ldata,
       tiles,
-    });
+    } as DataLayerState);
   }
 
-  updateState() {
+  updateState(): void {
     const viewTiles = this.getTileCoordinates(
       this.context.viewport.getBounds(),
       Math.floor(this.context.viewport.zoom),
     );
 
-    const reload = this.reloadData(viewTiles, this.state.viewTiles);
+    const reload = this.reloadData(viewTiles, this.state.viewTiles as ViewTile);
     if (reload.tiles == true || reload.zoom == true) {
       viewTiles.zoom = viewTiles.zoom > 10 ? 10 : viewTiles.zoom;
 
       const ldata = this.getAllTiles(
-        this.state.source,
-        this.state.tiles,
+        this.state.source as PMTilesSource,
+        this.state.tiles as DataTileMap,
         viewTiles,
       );
-      this.clearTiles(this.state.tiles, viewTiles);
+      this.clearTiles(this.state.tiles as DataTileMap, viewTiles);
 
       this.setState({
         storage: new Map(),
         viewTiles,
         ldata,
         tiles: this.state.tiles,
-      });
+      } as DataLayerState);
     } else {
       this.setState({
         storage: new Map(),
@@ -158,7 +163,7 @@ export default class DataTileLayer extends CompositeLayer {
     return tiles;
   }
 
-  async getMetadata(source) {
+  async getMetadata(source: PMTilesSource) {
     return await source.getMetadata();
   }
 
@@ -173,7 +178,7 @@ export default class DataTileLayer extends CompositeLayer {
 
   async getAllTiles(
     source: PMTilesSource,
-    tiles: Map<string, any>,
+    tiles: Map<string, Promise<unknown | null>>,
     viewTiles: ViewTile,
   ): Promise<Array<{ c: number; t: number }>> {
     const zoom = viewTiles.zoom;
@@ -182,15 +187,18 @@ export default class DataTileLayer extends CompositeLayer {
     for (let i = viewTiles.minY - 1; i <= viewTiles.maxY + 1; i++) {
       for (let j = viewTiles.minX - 1; j <= viewTiles.maxX + 1; j++) {
         if (!tiles.hasOwnProperty(`${j}${i}${zoom}`)) {
-          tiles[`${j}${i}${zoom}`] = await source.getVectorTile({
-            layers: "",
-            x: j,
-            y: i,
-            zoom: Math.floor(zoom),
-          });
+          tiles.set(
+            `${j}${i}${zoom}`,
+            await source.getVectorTile({
+              layers: "",
+              x: j,
+              y: i,
+              zoom: Math.floor(zoom),
+            }),
+          );
         }
 
-        let tile = tiles[`${j}${i}${zoom}`];
+        let tile = tiles.get(`${j}${i}${zoom}`);
 
         if (tile != null) {
           tile = tile.features.map((x) => {
@@ -204,7 +212,7 @@ export default class DataTileLayer extends CompositeLayer {
     return data;
   }
 
-  clearTiles(tiles: Map<string, any>, viewTiles: ViewTile) {
+  clearTiles(tiles: Map<string, any>, viewTiles: ViewTile): void {
     const keepKeys = [];
     for (let i = viewTiles.minY - 2; i <= viewTiles.maxY + 2; i++) {
       for (let j = viewTiles.minX - 2; j <= viewTiles.maxX + 2; j++) {
@@ -215,7 +223,7 @@ export default class DataTileLayer extends CompositeLayer {
     for (const key in tiles) {
       if (tiles.hasOwnProperty(key)) {
         if (!keepKeys.includes(key)) {
-          delete tiles[key];
+          tiles.delete(key);
         }
       }
     }
@@ -252,8 +260,3 @@ export default class DataTileLayer extends CompositeLayer {
     return reload;
   }
 }
-
-DataTileLayer.layerName = "DataTileLayer";
-DataTileLayer.defaultProps = {
-  alpha: 0,
-};

@@ -12,10 +12,11 @@ import { Theme } from "@radix-ui/themes";
 import { useState } from "react";
 import AsyncSelect from "react-select/async";
 
-import { mapElements } from "../config";
-import { useMenuStore } from "./Store";
+import { mapElements } from "../config.tsx";
+import { useMenuStore } from "./Store.tsx";
+import { SearchResult } from "../types.tsx";
 
-const options = ["Stockholm", "Göteborg", "Malmö"];
+const OPTIONS = ["Stockholm", "Göteborg", "Malmö"];
 
 async function getDefaultSearchOptions(defaultOptions: string[]): Promise<any> {
   const options = [];
@@ -50,7 +51,7 @@ async function loadOptions(inputValue: string) {
     );
 }
 
-const defaultSearchOptions = await getDefaultSearchOptions(options);
+const defaultSearchOptions = await getDefaultSearchOptions(OPTIONS);
 
 const groundList = Array.from(mapElements)
   .filter(([_, value]) => value.type == "ground")
@@ -172,8 +173,10 @@ export function Header() {
           isClearable={isClearable}
           isRtl={isRtl}
           isSearchable={isSearchable}
-          getOptionLabel={(e: any) => `${e.textstrang} ${e.textkategori}`}
-          getOptionValue={(e: any) => e.geometry_xy}
+          getOptionLabel={(e: SearchResult) =>
+            `${e.textstrang} ${e.textkategori}`
+          }
+          getOptionValue={(e: SearchResult) => e.textstrang}
           cacheOptions
           defaultOptions={defaultSearchOptions}
           loadOptions={loadOptions}

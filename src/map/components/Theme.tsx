@@ -1,6 +1,7 @@
 import { Button } from "@radix-ui/themes";
 
-import { useMenuStore, MenuState } from "./Store";
+import { useMenuStore } from "./Store";
+import { MenuState } from "../types.tsx";
 
 export function ThemeButton() {
   const theme = useMenuStore((state: MenuState) => state.theme);

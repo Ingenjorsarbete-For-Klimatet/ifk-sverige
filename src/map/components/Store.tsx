@@ -1,38 +1,19 @@
 import { FlyToInterpolator } from "@deck.gl/core/typed";
 import { create } from "zustand";
 
-import { mapElements, MapElement } from "../config";
-
-interface SearchView {
-  latitude: number;
-  longitude: number;
-  zoom: number;
-  minZoom: number;
-  maxZoom: number;
-  pitch: number;
-  bearing: number;
-  transitionDuration: number;
-  transitionInterpolator: Function;
-}
-
-export interface MenuState {
-  zoom: number;
-  theme: string;
-  layer: Map<string, MapElement>;
-  searchResult: {};
-  searchView: SearchView;
-  setZoom: (zoom: number) => void;
-  setTheme: () => void;
-  toggleLayer: (selectedLayer: string, checked: boolean) => void;
-  setSearchResult: (result: any, fun: any) => void;
-}
+import { mapElements } from "../config";
+import { SearchResult, SearchView, MenuState } from "../types";
 
 export const useMenuStore = create<MenuState>((set) => ({
   zoom: 4,
   theme: "light",
   layer: new Map(mapElements),
-  searchResult: {},
-  searchView: {},
+  searchResult: {
+    textstrang: "",
+    textkategori: "",
+    geometry_xy: [],
+  } as SearchResult,
+  searchView: {} as SearchView,
   setZoom: (zoom: number) => {
     set(() => ({ zoom: zoom }));
   },
@@ -51,7 +32,7 @@ export const useMenuStore = create<MenuState>((set) => ({
           : [0, 0, 0, 0],
       }),
     })),
-  setSearchResult: (result: any, fun: Function) => {
+  setSearchResult: (result: SearchResult, fun: Function) => {
     const view = {
       latitude: result.geometry_xy[1],
       longitude: result.geometry_xy[0],
@@ -62,8 +43,9 @@ export const useMenuStore = create<MenuState>((set) => ({
       bearing: 0,
       transitionDuration: 3000,
       transitionInterpolator: new FlyToInterpolator(),
-    };
+    } as SearchView;
     fun(view);
-    set(() => ({ searchResult: result, searchView: view }));
+    set(() => ({ searchResult: result }));
+    set(() => ({ searchView: view }));
   },
 }));

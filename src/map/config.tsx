@@ -1,14 +1,6 @@
 // @ts-ignore
 import colors from "./colors.module.css";
-
-export interface MapElement {
-  name: string;
-  color: number[];
-  dark_color: number[];
-  type: string;
-  checked: boolean;
-  stroke: number;
-}
+import { MapElement } from "./types.tsx";
 
 export const mapElements: Map<string, MapElement> = new Map(
   Object.entries({
