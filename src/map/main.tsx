@@ -1,9 +1,9 @@
-import { renderToDOM, App } from "./App.tsx";
-import { Header } from "./Header.tsx";
-import { Footer } from "./Footer.tsx";
-
 import "./styles.css";
 import "maplibre-gl/dist/maplibre-gl.css";
+
+import { App, renderToDOM } from "./components/App.tsx";
+import { Footer } from "./components/Footer.tsx";
+import { Header } from "./components/Header.tsx";
 
 renderToDOM(
   document.getElementById("root"),
