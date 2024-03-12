@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { createRoot } from "react-dom/client";
 import { Map, MapProvider } from "react-map-gl";
 
-import DataTileLayer from "./DataTileLayer.tsx";
+import DataTileLayer from "../layers/datatile-layer.tsx";
 import { useMenuStore } from "./Store.tsx";
 import { MenuState, SearchView } from "../types.tsx";
 

@@ -7,7 +7,7 @@ import { scaleQuantize } from "d3-scale";
 import { interpolateYlOrRd } from "d3-scale-chromatic";
 import { CompositeLayer, CompositeLayerProps, Viewport } from "@deck.gl/core";
 
-import DelaunayLayer from "./DelaunayLayer";
+import DelaunayLayer from "./delaunay-layer.tsx";
 import { ViewTile, Reload, DataLayerState, DataTileMap } from "../types.tsx";
 
 const defaultProps = {
