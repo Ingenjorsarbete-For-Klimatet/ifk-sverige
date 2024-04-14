@@ -1,50 +1,14 @@
-import { createRoot } from "react-dom/client";
-import { useEffect, useState } from "react";
+import { MVTLoader } from "@loaders.gl/mvt";
 import DeckGL from "deck.gl/typed";
-import { Map, MapProvider } from "react-map-gl";
 import maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import { ScatterplotLayer, GeoJsonLayer } from "@deck.gl/layers";
-import { interpolateYlOrRd } from "d3-scale-chromatic";
-import { color } from "d3-color";
-import { scaleQuantize } from "d3-scale";
-import { MyLayer } from "./delaunay.tsx";
-import DelaunayLayer from "./delaunay.tsx";
-import { useMenuStore } from "./Store";
-import { MVTLayer } from "@deck.gl/geo-layers";
-import { PMTLayer } from "@mgcth/deck.gl-pmtiles";
-import { MVTLoader } from "@loaders.gl/mvt";
+import { useEffect } from "react";
+import { createRoot } from "react-dom/client";
+import { Map, MapProvider } from "react-map-gl";
 
-import { PMTilesSource } from "@loaders.gl/pmtiles";
-
-function lerp(a: number, b: number, alpha: number) {
-  return a + alpha * (b - a);
-}
-
-function cartesianToWGS84(lngLat, boundingBox) {
-  const [minX, maxY] = boundingBox[0];
-  const [maxX, minY] = boundingBox[1];
-
-  const [x, y] = lngLat;
-  const x0 = lerp(minX, maxX, x);
-  const y0 = lerp(minY, maxY, y);
-  return [x0, y0];
-}
-
-function lon2tile(lon, zoom) {
-  return Math.floor(((lon + 180) / 360) * Math.pow(2, zoom));
-}
-function lat2tile(lat, zoom) {
-  return Math.floor(
-    ((1 -
-      Math.log(
-        Math.tan((lat * Math.PI) / 180) + 1 / Math.cos((lat * Math.PI) / 180),
-      ) /
-        Math.PI) /
-      2) *
-      Math.pow(2, zoom),
-  );
-}
+import DataTileLayer from "../layers/datatile-layer.tsx";
+import { MenuState, SearchView } from "../types.tsx";
+import { useMenuStore } from "./Store.tsx";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -52,65 +16,35 @@ const INITIAL_VIEW_STATE = {
   zoom: 4,
   minZoom: 4,
   maxZoom: 14,
-};
+} as SearchView;
 
 export function App() {
-  const [tmp, setTmp] = useState([]);
-  const zoom = useMenuStore((state: any) => state.zoom);
-  const setZoom = useMenuStore((state: any) => state.setZoom);
-  const searchView = useMenuStore((state: any) => {
+  const zoom = useMenuStore((state: MenuState) => state.zoom);
+  const setZoom = useMenuStore((state: MenuState) => state.setZoom);
+  const searchView = useMenuStore((state: MenuState) => {
     if (state.searchView.zoom) {
       return state.searchView;
     } else {
       return INITIAL_VIEW_STATE;
     }
   });
-  const [viewState, setViewState] = useState(searchView);
-
-  // const step = 1;
-  // const loopLength = 2500;
-  // const [time, setTime] = useState(0);
-  // const [z, setZ] = useState(0);
-  // const [animation] = useState({});
-  // const animate = () => {
-  //   setTime((t) => (t + step) % loopLength);
-  //   if (z > 13) {
-  //     setZ(0);
-  //   }
-  //   setZ((t) => t + 1);
-  //   setTimeout(() => {
-  //     animation.id = window.requestAnimationFrame(animate); // draw next frame
-  //   }, 100);
-  // };
-  // useEffect(() => {
-  //   if (!true) {
-  //     window.cancelAnimationFrame(animation.id);
-  //     return;
-  //   }
-
-  //   animation.id = window.requestAnimationFrame(animate); // start animation
-  //   return () => window.cancelAnimationFrame(animation.id);
-  // }, [true]);
-
-  // if (z > 12) {
-  //   setZ(0);
-  // }
-
-  // console.log(z);
 
   useEffect(() => {
-    let protocol: any = new Protocol();
+    const protocol: any = new Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
     return () => {
       maplibregl.removeProtocol("pmtiles");
     };
   }, []);
 
-  const layers = useMenuStore((state: any) => {
-    let layers: any = [];
+  const layers = useMenuStore((state: MenuState) => {
+    const layers = [];
 
-    for (const p in state.layer) {
-      if (state.layer[p].type == "ground" && state.layer[p].checked == true) {
+    for (const [p, _] of state.layer) {
+      if (
+        state.layer.get(p)!.type == "ground" &&
+        state.layer.get(p)!.checked == true
+      ) {
         let opacity = 1;
         if (
           p == "Sverige" ||
@@ -130,21 +64,21 @@ export function App() {
         layers.push({
           id: p,
           source: "ground",
-          "source-layer": state.layer[p].name,
+          "source-layer": state.layer.get(p)!.name,
           type: "fill",
           paint: {
             "fill-color":
               state.theme == "light"
-                ? state.layer[p].color
-                : state.layer[p].dark_color,
+                ? state.layer.get(p)!.color
+                : state.layer.get(p)!.dark_color,
             "fill-opacity": opacity,
           },
         });
       }
 
       if (
-        state.layer[p].type == "communication" &&
-        state.layer[p].checked == true
+        state.layer.get(p)!.type == "communication" &&
+        state.layer.get(p)!.checked == true
       ) {
         let line_width = 2;
         let line_blur = 1;
@@ -162,7 +96,7 @@ export function App() {
         layers.push({
           id: `${p}_outline`,
           source: "connection",
-          "source-layer": state.layer[p].name,
+          "source-layer": state.layer.get(p)!.name,
           type: "line",
           paint: {
             "line-color": state.theme == "light" ? "#000" : "#fff",
@@ -174,13 +108,13 @@ export function App() {
         layers.push({
           id: p,
           source: "connection",
-          "source-layer": state.layer[p].name,
+          "source-layer": state.layer.get(p)!.name,
           type: "line",
           paint: {
             "line-color":
               state.theme == "light"
-                ? state.layer[p].color
-                : state.layer[p].dark_color,
+                ? state.layer.get(p)!.color
+                : state.layer.get(p)!.dark_color,
             "line-width": line_width,
             "line-gap-width": line_gap_width,
           },
@@ -230,18 +164,17 @@ export function App() {
     return layers;
   });
 
-  const layers2 = useMenuStore((state: any) => {
+  const layers2 = useMenuStore((state: MenuState) => {
     const layers = [];
 
     layers.push(
-      // @ts-ignore
-      new MyLayer({
+      new DataTileLayer({
         id: "test",
-        data: "http://localhost:5173/file_3/{z}/{x}/{y}.pbf",
+        data: "http://localhost:5173/mesan.pmtiles",
         loaders: [MVTLoader],
-        alpha: state.layer["Temperatur"].checked == true ? 200 : 0,
+        alpha: state.layer.get("Temperatur")!.checked == true ? 200 : 0,
         // updateTriggers: {
-        //   alpha: state.layer["Temperatur"].checked
+        //   alpha: state.layer.get("Temperatur")?.checked
         // }
       }),
     );
@@ -257,17 +190,6 @@ export function App() {
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
         setZoom(viewState.zoom);
-        //console.log(viewState)
-
-        // const {width, height } = viewState;
-
-        // view.makeViewport({width, height, viewState})
-
-        //console.log("viewstate", viewState)
-        const viewport = viewState;
-        //console.log("viewport", viewport)
-        // const visibleData = this.getVisibleData(viewport); // Implement getVisibleData function
-        // this.setState({ visibleData });
 
         return {
           ...viewState,

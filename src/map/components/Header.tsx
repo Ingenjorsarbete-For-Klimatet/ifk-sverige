@@ -1,25 +1,25 @@
-import { useState } from "react";
 import {
-  Button,
   Box,
+  Button,
   Flex,
   Popover,
-  Tabs,
-  Text,
   ScrollArea,
   Switch,
+  Tabs,
+  Text,
 } from "@radix-ui/themes";
-import AsyncSelect from "react-select/async";
-import { mapElements } from "./config";
-import { useMenuStore } from "./Store";
 import { Theme } from "@radix-ui/themes";
+import { useState } from "react";
+import AsyncSelect from "react-select/async";
 
-const options = ["Stockholm", "Göteborg", "Malmö"];
+import { mapElements } from "../config.tsx";
+import { useMenuStore } from "./Store.tsx";
+import { SearchResult } from "../types.tsx";
 
-async function getDefaultSearchOptions(
-  defaultOptions: Array<string>,
-): Promise<any> {
-  let options = [];
+const OPTIONS = ["Stockholm", "Göteborg", "Malmö"];
+
+async function getDefaultSearchOptions(defaultOptions: string[]): Promise<any> {
+  const options = [];
 
   for (const option of defaultOptions) {
     const optionResult = await loadOptions(option);
@@ -45,28 +45,28 @@ async function loadOptions(inputValue: string) {
     .then((res) => res.json())
     .catch((err) => console.log(err))
     .then((res) =>
-      res["matches"].sort(function (first: any, second: any) {
+      res.matches.sort(function (first: any, second: any) {
         return second.textstorleksklass - first.textstorleksklass;
       }),
     );
 }
 
-const defaultSearchOptions = await getDefaultSearchOptions(options);
+const defaultSearchOptions = await getDefaultSearchOptions(OPTIONS);
 
-const groundList = Object.entries(mapElements)
-  .filter(([_, value]) => value["type"] == "ground")
+const groundList = Array.from(mapElements)
+  .filter(([, value]) => value.type == "ground")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
   });
 
-const communicationList = Object.entries(mapElements)
-  .filter(([_, value]) => value["type"] == "communication")
+const communicationList = Array.from(mapElements)
+  .filter(([, value]) => value.type == "communication")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
   });
 
-const temperature = Object.entries(mapElements)
-  .filter(([_, value]) => value["type"] == "data")
+const temperature = Array.from(mapElements)
+  .filter(([, value]) => value.type == "data")
   .map(([key, _]) => {
     return <LayerLabel value={key} label={key} />;
   });
@@ -82,7 +82,7 @@ function LayerLabel({ _, label }: any): any {
         {label}
         <Switch
           id={label}
-          checked={layer[label].checked}
+          checked={layer.get(label)!.checked}
           onCheckedChange={(e) => {
             return toggleLayer(label, e);
           }}
@@ -172,8 +172,10 @@ export function Header() {
           isClearable={isClearable}
           isRtl={isRtl}
           isSearchable={isSearchable}
-          getOptionLabel={(e: any) => `${e.textstrang} ${e.textkategori}`}
-          getOptionValue={(e: any) => e.geometry_xy}
+          getOptionLabel={(e: SearchResult) =>
+            `${e.textstrang} ${e.textkategori}`
+          }
+          getOptionValue={(e: SearchResult) => e.textstrang}
           cacheOptions
           defaultOptions={defaultSearchOptions}
           loadOptions={loadOptions}
