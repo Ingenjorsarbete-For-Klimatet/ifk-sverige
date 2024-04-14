@@ -1,6 +1,6 @@
 import { FlyToInterpolator } from "@deck.gl/core/typed";
-import { ThemeOptions } from "@radix-ui/themes";
 import { PMTilesSource } from "@loaders.gl/pmtiles";
+import { ThemeOptions } from "@radix-ui/themes";
 
 export interface MapElement {
   name: string;
@@ -14,7 +14,7 @@ export interface MapElement {
 export interface SearchResult {
   textstrang: string;
   textkategori: string;
-  geometry_xy: Array<number>;
+  geometry_xy: number[];
 }
 
 export interface SearchView {
@@ -38,7 +38,10 @@ export interface MenuState {
   setZoom: (zoom: number) => void;
   setTheme: () => void;
   toggleLayer: (selectedLayer: string, checked: boolean) => void;
-  setSearchResult: (result: SearchResult, fun: Function) => void;
+  setSearchResult: (
+    result: SearchResult,
+    fun: (...args: unknown[]) => void,
+  ) => void;
 }
 
 export interface ViewTile {
@@ -56,7 +59,7 @@ export interface Reload {
 
 export interface DataLayerState {
   source: PMTilesSource;
-  storage: Map<string, Promise<unknown | null>>;
+  storage: Map<string, Promise<unknown>>;
   viewTiles: ViewTile;
   ldata: any;
   tiles: any;

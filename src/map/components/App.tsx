@@ -2,13 +2,13 @@ import { MVTLoader } from "@loaders.gl/mvt";
 import DeckGL from "deck.gl/typed";
 import maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { Map, MapProvider } from "react-map-gl";
 
 import DataTileLayer from "../layers/datatile-layer.tsx";
-import { useMenuStore } from "./Store.tsx";
 import { MenuState, SearchView } from "../types.tsx";
+import { useMenuStore } from "./Store.tsx";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,

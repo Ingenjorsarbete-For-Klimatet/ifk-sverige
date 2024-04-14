@@ -12,7 +12,7 @@ module.exports = {
   ],
   ignorePatterns: ["dist", ".eslintrc.cjs"],
   parser: "@typescript-eslint/parser",
-  plugins: ["react-refresh", "simple-import-sort"],
+  plugins: ["react", "react-refresh", "simple-import-sort"],
   rules: {
     "react-refresh/only-export-components": [
       "warn",
@@ -27,5 +27,10 @@ module.exports = {
     sourceType: "module",
     project: ["./tsconfig.json", "./tsconfig.node.json"],
     tsconfigRootDir: __dirname,
+  },
+  settings: {
+    react: {
+      version: "detect",
+    },
   },
 };

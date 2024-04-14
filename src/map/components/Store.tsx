@@ -2,7 +2,7 @@ import { FlyToInterpolator } from "@deck.gl/core/typed";
 import { create } from "zustand";
 
 import { mapElements } from "../config";
-import { SearchResult, SearchView, MenuState } from "../types";
+import { MenuState, SearchResult, SearchView } from "../types";
 
 export const useMenuStore = create<MenuState>((set) => ({
   zoom: 4,
