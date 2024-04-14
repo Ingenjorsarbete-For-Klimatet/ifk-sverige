@@ -5,9 +5,13 @@ import {
   DefaultProps,
   Accessor,
   LayerProps,
+  UpdateParameters,
+  PickingInfo,
+  GetPickingInfoParams,
 } from "@deck.gl/core";
 import GL from "@luma.gl/constants";
-import { Model } from "@luma.gl/core";
+import { Model } from "@luma.gl/engine";
+// @ts-ignore
 import { Delaunay } from "d3-delaunay";
 
 type ColorScale<DataT> = (data: DataT) => Array<number>;
@@ -117,6 +121,7 @@ export default class DelaunayLayer<
         type: GL.UNSIGNED_BYTE,
         accessor: "getValue",
         transform: (x) => {
+          // @ts-ignore
           const [min, max] = this.state.valueRange;
           const normalizedValue = Math.round(
             ((x - min) / (max - min)) * PICKABLE_VALUE_RANGE,
@@ -127,13 +132,14 @@ export default class DelaunayLayer<
     });
   }
 
-  updateState(params): void {
+  updateState(params: UpdateParameters<this>): void {
     //console.log("viewport", this.context.viewport)
     super.updateState(params);
 
     const { changeFlags } = params;
     if (changeFlags.extensionsChanged) {
       if (this.state.model) {
+        // @ts-ignore
         this.state.model.delete();
       }
 
@@ -142,29 +148,38 @@ export default class DelaunayLayer<
     }
     if (
       changeFlags.dataChanged ||
+      // @ts-ignore
       changeFlags.updateTriggersChanged?.getValue
     ) {
       this.setState({ valueRange: this.getValueRange() });
     }
   }
 
-  draw({ uniforms }) {
-    this.state.model.setVertexCount(this.state.vertexCount);
-    this.state.model.setUniforms(uniforms).draw();
+  // @ts-ignore
+  draw({ uniforms }): void {
+    // @ts-ignore
+    this.state.model?.setVertexCount(this.state.vertexCount);
+    // @ts-ignore
+    this.state.model?.setUniforms(uniforms).draw();
   }
 
-  getPickingInfo({ info }) {
+  getPickingInfo(params: GetPickingInfoParams): PickingInfo {
+    const info: PickingInfo = params.info;
+
     if (info.index >= 0) {
       const {
+        // @ts-ignore
         valueRange: [min, max],
       } = this.state;
       info.object = null;
+      // @ts-ignore
       info.value = (info.index / PICKABLE_VALUE_RANGE) * (max - min) + min;
     }
     return info;
   }
 
-  _getModel(gl) {
+  // @ts-ignore
+  _getModel(gl): Model {
     return new Model(
       gl,
       Object.assign({}, this.getShaders(), {
@@ -175,11 +190,13 @@ export default class DelaunayLayer<
     );
   }
 
-  getValueRange() {
+  getValueRange(): Array<number> {
     const { data, getValue } = this.props;
     let min = Infinity;
     let max = -Infinity;
+    // @ts-ignore
     for (const object of data) {
+      // @ts-ignore
       const v = getValue(object) || 0;
       min = v < min ? v : min;
       max = v > max ? v : max;
@@ -194,9 +211,11 @@ export default class DelaunayLayer<
     return [min, max];
   }
 
-  calculateIndices(attribute) {
+  // @ts-ignore
+  calculateIndices(attribute): void {
     const { data, getPosition } = this.props;
 
+    // @ts-ignore
     const points = data.map(getPosition);
     const delaunay = Delaunay.from(points);
     const indices = delaunay.triangles;

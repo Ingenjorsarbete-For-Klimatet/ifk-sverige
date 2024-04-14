@@ -76,7 +76,6 @@ function LayerLabel({ _, label }: any): any {
   const layer = useMenuStore((state: any) => state.layer);
   const toggleLayer = useMenuStore((state: any) => state.toggleLayer);
 
-  console.log(layer);
   return (
     <Text as="label" size="2">
       <Flex justify="between" gap="2" style={{ margin: "9px 0" }}>
