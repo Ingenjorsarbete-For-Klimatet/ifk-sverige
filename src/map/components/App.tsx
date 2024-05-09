@@ -1,5 +1,5 @@
 import { MVTLoader } from "@loaders.gl/mvt";
-import DeckGL from "deck.gl/typed";
+import DeckGL from "deck.gl";
 import maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
 import { useEffect } from "react";

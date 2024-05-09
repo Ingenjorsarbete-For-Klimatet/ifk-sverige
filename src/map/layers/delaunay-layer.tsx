@@ -2,25 +2,24 @@ import {
   Layer,
   picking,
   project32,
-  DefaultProps,
   Accessor,
   LayerProps,
   UpdateParameters,
   PickingInfo,
   GetPickingInfoParams,
-} from "@deck.gl/core";
-import GL from "@luma.gl/constants";
+} from "deck.gl";
+import { GL } from "@luma.gl/constants";
 import { Model } from "@luma.gl/engine";
 // @ts-ignore
 import { Delaunay } from "d3-delaunay";
 
 type ColorScale<DataT> = (data: DataT) => Array<number>;
 
-const defaultProps: DefaultProps<DelaunayLayerProps> = {
-  getPosition: { type: "accessor", value: (d: any) => d.position },
-  getValue: { type: "accessor", value: () => 0 },
-  colorScale: { type: "function", value: () => [255, 0, 0] },
-};
+// const defaultProps: DefaultProps<DelaunayLayerProps> = {
+//   getPosition: { type: "accessor", value: (d: any) => d.position },
+//   getValue: { type: "accessor", value: () => 0 },
+//   colorScale: { type: "function", value: () => [255, 0, 0] },
+// };
 
 type _DelaunayLayerProps<DataT> = {
   getPosition?: Accessor<DataT, Array<number>>;
@@ -34,15 +33,16 @@ export type DelaunayLayerProps<DataT = unknown> = _DelaunayLayerProps<DataT> &
 const PICKABLE_VALUE_RANGE = 256 * 256 * 256 - 1;
 
 const vs = `\
+#version 300 es
 #define SHADER_NAME delaunay-layer-vertex-shader
 
-attribute vec3 positions;
-attribute vec3 positions64Low;
-attribute vec4 colors;
-attribute vec3 pickingColors;
+in vec3 positions;
+in vec3 positions64Low;
+in vec4 colors;
+in vec3 pickingColors;
 
 uniform float opacity;
-varying vec4 vColor;
+out vec4 vColor;
 
 void main(void) {
   geometry.worldPosition = positions;
@@ -57,18 +57,18 @@ void main(void) {
 `;
 
 const fs = `\
+#version 300 es
 #define SHADER_NAME delaunay-layer-fragment-shader
 
-#ifdef GL_ES
 precision highp float;
-#endif
 
-varying vec4 vColor;
+in vec4 vColor;
+out vec4 fragColor;
 
 void main(void) {
-  gl_FragColor = vColor;
+  fragColor = vColor;
 
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;
 
@@ -77,13 +77,14 @@ export default class DelaunayLayer<
   ExtraPropsT extends {} = {},
 > extends Layer<ExtraPropsT & Required<_DelaunayLayerProps<DataT>>> {
   static layerName = "DelaunayLayer";
-  static defaultProps = defaultProps;
+  //static defaultProps = defaultProps;
 
   getShaders(): void {
     return super.getShaders({
       vs,
       fs,
       modules: [project32, picking],
+      //debugShaders: true
     });
   }
 
@@ -102,15 +103,15 @@ export default class DelaunayLayer<
       },
       positions: {
         size: 3,
-        type: GL.DOUBLE,
+        //type: GL.DOUBLE,
         fp64: this.use64bitPositions(),
         transition: true,
         accessor: "getPosition",
       },
       colors: {
         size: 4,
-        type: GL.UNSIGNED_BYTE,
-        normalized: true,
+        //type: GL.UNSIGNED_BYTE,
+        //normalized: true,
         transition: true,
         accessor: "getValue",
         defaultValue: [0, 0, 0, 255],
@@ -118,7 +119,7 @@ export default class DelaunayLayer<
       },
       pickingColors: {
         size: 3,
-        type: GL.UNSIGNED_BYTE,
+        //type: GL.UNSIGNED_BYTE,
         accessor: "getValue",
         transform: (x) => {
           // @ts-ignore
@@ -143,7 +144,7 @@ export default class DelaunayLayer<
         this.state.model.delete();
       }
 
-      this.setState({ model: this._getModel(this.context.gl) });
+      this.setState({ model: this._getModel(this.context.device) });
       this.getAttributeManager()?.invalidateAll();
     }
     if (
@@ -160,7 +161,8 @@ export default class DelaunayLayer<
     // @ts-ignore
     this.state.model?.setVertexCount(this.state.vertexCount);
     // @ts-ignore
-    this.state.model?.setUniforms(uniforms).draw();
+    this.state.model?.setUniforms(uniforms);
+    this.state.model?.draw();
   }
 
   getPickingInfo(params: GetPickingInfoParams): PickingInfo {
@@ -224,3 +226,9 @@ export default class DelaunayLayer<
     attribute.value = new Uint32Array(indices);
   }
 }
+
+DelaunayLayer.defaultProps = {
+  getPosition: { type: "accessor", value: (d: any) => d.position },
+  getValue: { type: "accessor", value: () => 0 },
+  colorScale: { type: "function", value: () => [255, 0, 0] },
+};
