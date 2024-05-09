@@ -5,10 +5,14 @@ import { Protocol } from "pmtiles";
 import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
 import { Map, MapProvider } from "react-map-gl";
+import { GeoJsonLayer } from "deck.gl/typed";
 
 import DataTileLayer from "../layers/datatile-layer.tsx";
 import { MenuState, SearchView } from "../types.tsx";
 import { useMenuStore } from "./Store.tsx";
+
+import { PickingInfo } from "@deck.gl/core";
+import { useCallback } from "react";
 
 const INITIAL_VIEW_STATE = {
   latitude: 62.5,
@@ -179,14 +183,42 @@ export function App() {
       }),
     );
 
+    layers.push(
+      new GeoJsonLayer<BlockProperties>({
+        id: "geojson",
+        data: "http://localhost:5173/Kommun_Sweref99TM.geojson",
+        opacity: 0.8,
+        stroked: true,
+        filled: true,
+        getFillColor: [100, 100, 100, 50],
+        getLineColor: [255, 255, 255, 255],
+        getLineWidth: 2,
+        lineWidthMinPixels: 1,
+        pickable: true,
+      }),
+    );
+
     return layers;
   });
+
+  const getTooltip = useCallback(({ object }: PickingInfo<DataType>) => {
+    console.log(object);
+    return (
+      object && {
+        html: `<h2>Message:</h2> <div>${object.properties.KnNamn}</div>`,
+        style: {
+          backgroundColor: "#000",
+          fontSize: "0.8em",
+        },
+      }
+    );
+  }, []);
 
   return (
     <DeckGL
       initialViewState={searchView}
       layers={layers2}
-      controller={{ inertia: 500, scrollZoom: { speed: 0.2, smooth: false } }}
+      controller={{ inertia: 500, scrollZoom: { speed: 0.01, smooth: false } }}
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
         setZoom(viewState.zoom);
@@ -195,6 +227,7 @@ export function App() {
           ...viewState,
         };
       }}
+      getTooltip={getTooltip}
     >
       <Map
         style={{ width: "100vw", height: "100vh", margin: "0 auto" }}
