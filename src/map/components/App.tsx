@@ -4,7 +4,7 @@ import maplibregl from "maplibre-gl";
 import { Protocol } from "pmtiles";
 import { useEffect } from "react";
 import { createRoot } from "react-dom/client";
-import { Map, MapProvider } from "react-map-gl";
+import { Map, MapProvider } from "react-map-gl/maplibre";
 
 import DataTileLayer from "../layers/datatile-layer.tsx";
 import { MenuState, SearchView } from "../types.tsx";
@@ -231,8 +231,6 @@ export function App() {
           // @ts-ignore
           layers: layers,
         }}
-        // @ts-ignore
-        mapLib={maplibregl}
       />
     </DeckGL>
   );
