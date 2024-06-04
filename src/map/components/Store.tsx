@@ -1,4 +1,4 @@
-import { FlyToInterpolator } from "@deck.gl/core/typed";
+import { FlyToInterpolator } from "deck.gl";
 import { create } from "zustand";
 
 import { mapElements } from "../config";

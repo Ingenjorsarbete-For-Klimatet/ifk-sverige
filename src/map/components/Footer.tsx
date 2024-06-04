@@ -1,7 +1,8 @@
 import { Button, Flex, Popover } from "@radix-ui/themes";
 import { Theme } from "@radix-ui/themes";
 
-import { MenuState, useMenuStore } from "./Store";
+import { useMenuStore } from "./Store";
+import { MenuState } from "../types";
 import { ThemeButton } from "./Theme";
 
 export function Footer() {

@@ -2,14 +2,15 @@ import {
   Layer,
   picking,
   project32,
-  DefaultProps,
   Accessor,
   LayerProps,
   UpdateParameters,
   PickingInfo,
   GetPickingInfoParams,
+  DefaultProps,
 } from "@deck.gl/core";
-import GL from "@luma.gl/constants";
+import { GL } from "@luma.gl/constants";
+import { Device } from "@luma.gl/core";
 import { Model } from "@luma.gl/engine";
 // @ts-ignore
 import { Delaunay } from "d3-delaunay";
@@ -34,15 +35,16 @@ export type DelaunayLayerProps<DataT = unknown> = _DelaunayLayerProps<DataT> &
 const PICKABLE_VALUE_RANGE = 256 * 256 * 256 - 1;
 
 const vs = `\
+#version 300 es
 #define SHADER_NAME delaunay-layer-vertex-shader
 
-attribute vec3 positions;
-attribute vec3 positions64Low;
-attribute vec4 colors;
-attribute vec3 pickingColors;
+in vec3 positions;
+in vec3 positions64Low;
+in vec4 colors;
+in vec3 pickingColors;
 
 uniform float opacity;
-varying vec4 vColor;
+out vec4 vColor;
 
 void main(void) {
   geometry.worldPosition = positions;
@@ -57,18 +59,21 @@ void main(void) {
 `;
 
 const fs = `\
+#version 300 es
 #define SHADER_NAME delaunay-layer-fragment-shader
 
 #ifdef GL_ES
 precision highp float;
 #endif
 
-varying vec4 vColor;
+in vec4 vColor;
+
+out vec4 fragColor;
 
 void main(void) {
-  gl_FragColor = vColor;
+  fragColor = vColor;
 
-  DECKGL_FILTER_COLOR(gl_FragColor, geometry);
+  DECKGL_FILTER_COLOR(fragColor, geometry);
 }
 `;
 
@@ -78,6 +83,14 @@ export default class DelaunayLayer<
 > extends Layer<ExtraPropsT & Required<_DelaunayLayerProps<DataT>>> {
   static layerName = "DelaunayLayer";
   static defaultProps = defaultProps;
+
+  state!: {
+    disablePicking?: boolean;
+    model?: Model;
+    mesh?: any;
+    coordinateConversion: number;
+    bounds: number[];
+  };
 
   getShaders(): void {
     return super.getShaders({
@@ -102,23 +115,23 @@ export default class DelaunayLayer<
       },
       positions: {
         size: 3,
-        type: GL.DOUBLE,
+        type: "float64",
         fp64: this.use64bitPositions(),
-        transition: true,
+        //transition: true,
         accessor: "getPosition",
       },
       colors: {
         size: 4,
-        type: GL.UNSIGNED_BYTE,
-        normalized: true,
-        transition: true,
+        type: "unorm8",
+        //normalized: true,
+        //transition: true,
         accessor: "getValue",
         defaultValue: [0, 0, 0, 255],
         transform: (x) => this.getCurrentLayer()?.props.colorScale(x),
       },
       pickingColors: {
         size: 3,
-        type: GL.UNSIGNED_BYTE,
+        type: "uint8",
         accessor: "getValue",
         transform: (x) => {
           // @ts-ignore
@@ -130,6 +143,8 @@ export default class DelaunayLayer<
         },
       },
     });
+
+    this.setState({});
   }
 
   updateState(params: UpdateParameters<this>): void {
@@ -143,7 +158,7 @@ export default class DelaunayLayer<
         this.state.model.delete();
       }
 
-      this.setState({ model: this._getModel(this.context.gl) });
+      this.setState({ model: this._getModel(this.context.device) });
       this.getAttributeManager()?.invalidateAll();
     }
     if (
@@ -155,12 +170,11 @@ export default class DelaunayLayer<
     }
   }
 
-  // @ts-ignore
   draw({ uniforms }): void {
-    // @ts-ignore
-    this.state.model?.setVertexCount(this.state.vertexCount);
-    // @ts-ignore
-    this.state.model?.setUniforms(uniforms).draw();
+    const { model } = this.state;
+    model?.setVertexCount(this.state.vertexCount);
+    model?.setUniforms(uniforms);
+    model?.draw(this.context.renderPass);
   }
 
   getPickingInfo(params: GetPickingInfoParams): PickingInfo {
@@ -179,12 +193,13 @@ export default class DelaunayLayer<
   }
 
   // @ts-ignore
-  _getModel(gl): Model {
+  _getModel(device: Device): Model {
     return new Model(
-      gl,
+      device,
       Object.assign({}, this.getShaders(), {
         id: this.id,
-        drawMode: GL.TRIANGLES,
+        bufferLayout: this.getAttributeManager().getBufferLayouts(),
+        topology: "triangle-list",
         isInstanced: false,
       }),
     );
