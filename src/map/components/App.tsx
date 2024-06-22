@@ -184,11 +184,14 @@ export function App() {
 
   return (
     <DeckGL
+      // @ts-ignore
       initialViewState={searchView}
       layers={layers2}
       controller={{ inertia: 500, scrollZoom: { speed: 0.2, smooth: false } }}
+      // @ts-ignore
       ContextProvider={MapProvider}
       onViewStateChange={({ viewState }) => {
+        // @ts-ignore
         setZoom(viewState.zoom);
 
         return {

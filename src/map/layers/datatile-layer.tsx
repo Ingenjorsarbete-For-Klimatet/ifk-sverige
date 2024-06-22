@@ -114,7 +114,8 @@ export default class DataTileLayer<
 
   hexToRGB(hex: string): Array<number> {
     const c = color(hex);
-    return [c.r, c.g, c.b];
+    // @ts-ignore
+    return [c?.r, c?.g, c?.b];
   }
 
   lon2tile(lon: number, zoom: number): number {
