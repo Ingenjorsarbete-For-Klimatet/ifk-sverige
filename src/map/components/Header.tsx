@@ -55,20 +55,20 @@ const defaultSearchOptions = await getDefaultSearchOptions(OPTIONS);
 
 const groundList = Array.from(mapElements)
   .filter(([, value]) => value.type == "ground")
-  .map(([key, _]) => {
-    return <LayerLabel value={key} label={key} />;
+  .map(([key, _], index) => {
+    return <LayerLabel value={key} label={key} key={index} />;
   });
 
 const communicationList = Array.from(mapElements)
   .filter(([, value]) => value.type == "communication")
-  .map(([key, _]) => {
-    return <LayerLabel value={key} label={key} />;
+  .map(([key, _], index) => {
+    return <LayerLabel value={key} label={key} key={index} />;
   });
 
 const temperature = Array.from(mapElements)
   .filter(([, value]) => value.type == "data")
-  .map(([key, _]) => {
-    return <LayerLabel value={key} label={key} />;
+  .map(([key, _], index) => {
+    return <LayerLabel value={key} label={key} key={index} />;
   });
 
 // @ts-ignore
