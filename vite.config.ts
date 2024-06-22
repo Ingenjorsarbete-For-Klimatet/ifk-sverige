@@ -5,6 +5,9 @@ import { defineConfig } from "vite";
 export default defineConfig({
   build: {
     target: "esnext",
+    commonjsOptions: {
+      include: ["node_modules/**"],
+    },
   },
 
   plugins: [react()],
