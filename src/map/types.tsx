@@ -1,4 +1,5 @@
-import { FlyToInterpolator } from "@deck.gl/core/typed";
+import { FlyToInterpolator } from "@deck.gl/core";
+// @ts-ignore
 import { PMTilesSource } from "@loaders.gl/pmtiles";
 import { ThemeOptions } from "@radix-ui/themes";
 

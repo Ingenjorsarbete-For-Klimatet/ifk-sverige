@@ -1,3 +1,4 @@
+// @ts-ignore
 import { PMTilesSource } from "@loaders.gl/pmtiles";
 // @ts-ignore
 import { color } from "d3-color";
