@@ -9,7 +9,6 @@ import {
   GetPickingInfoParams,
   DefaultProps,
 } from "@deck.gl/core";
-import { GL } from "@luma.gl/constants";
 import { Device } from "@luma.gl/core";
 import { Model } from "@luma.gl/engine";
 // @ts-ignore
@@ -84,7 +83,7 @@ export default class DelaunayLayer<
   static layerName = "DelaunayLayer";
   static defaultProps = defaultProps;
 
-  state!: {
+  declare state: {
     disablePicking?: boolean;
     model?: Model;
     mesh?: any;
@@ -170,8 +169,10 @@ export default class DelaunayLayer<
     }
   }
 
+  // @ts-ignore
   draw({ uniforms }): void {
     const { model } = this.state;
+    // @ts-ignore
     model?.setVertexCount(this.state.vertexCount);
     model?.setUniforms(uniforms);
     model?.draw(this.context.renderPass);
@@ -196,8 +197,10 @@ export default class DelaunayLayer<
   _getModel(device: Device): Model {
     return new Model(
       device,
+      // @ts-ignore
       Object.assign({}, this.getShaders(), {
         id: this.id,
+        // @ts-ignore
         bufferLayout: this.getAttributeManager().getBufferLayouts(),
         topology: "triangle-list",
         isInstanced: false,
@@ -235,6 +238,7 @@ export default class DelaunayLayer<
     const delaunay = Delaunay.from(points);
     const indices = delaunay.triangles;
 
+    // @ts-ignore
     this.state.vertexCount = indices.length;
     attribute.value = new Uint32Array(indices);
   }
