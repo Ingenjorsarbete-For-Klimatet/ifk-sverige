@@ -33,6 +33,7 @@ export const useMenuStore = create<MenuState>((set) => ({
       }),
     })),
   setSearchResult: (result: SearchResult, fun: Function) => {
+    // @ts-ignore
     const view = {
       latitude: result.geometry_xy[1],
       longitude: result.geometry_xy[0],

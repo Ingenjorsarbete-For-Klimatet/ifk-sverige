@@ -12,7 +12,7 @@ authors = [
     { name = "Mladen Gibanica", email = "11275336+mgcth@users.noreply.github.com" },
 ]
 requires-python = ">=3.9"
-dependencies = ["fastapi ~= 0.108", "uvicorn[standard]", "geopandas ~= 0.14", "pyarrow ~= 14.0"]
+dependencies = ["fastapi == 0.108.0", "uvicorn[standard] == 0.25.0", "geopandas == 0.14.1", "pyarrow ~= 14.0", "fiona == 1.9.5", "httpx == 0.26.0"]
 
 [project.optional-dependencies]
 lint = ["ruff ~= 0.1"]
